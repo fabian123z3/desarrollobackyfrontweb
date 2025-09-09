@@ -581,30 +581,40 @@ def mark_attendance(request):
         
         # Lógica de búsqueda de empleado
         employee_name = data.get('employee_name', '').strip()
-        employee_id = data.get('employee_id', '').strip()
+        employee_id_or_rut = data.get('employee_id', '').strip()
         
         employee = None
-        if employee_id:
-            try:
-                employee = Employee.objects.get(employee_id=employee_id, is_active=True)
-            except Employee.DoesNotExist:
-                pass
         
+        # Intenta buscar por RUT si parece un RUT
+        if employee_id_or_rut and validate_chilean_rut(employee_id_or_rut):
+            employee = search_employee_by_rut(employee_id_or_rut)
+            print(f"Búsqueda por RUT ({employee_id_or_rut}): {'✅' if employee else '❌'}")
+        
+        # Si no se encuentra por RUT, intenta por employee_id interno
+        if not employee and employee_id_or_rut:
+            try:
+                employee = Employee.objects.get(employee_id=employee_id_or_rut, is_active=True)
+                print(f"Búsqueda por ID ({employee_id_or_rut}): ✅")
+            except Employee.DoesNotExist:
+                print(f"Búsqueda por ID ({employee_id_or_rut}): ❌")
+        
+        # Si no se encuentra por RUT ni por ID, intenta por nombre (como fallback)
         if not employee and employee_name:
             try:
                 employee = Employee.objects.get(name__icontains=employee_name, is_active=True)
+                print(f"Búsqueda por nombre ({employee_name}): ✅")
             except Employee.DoesNotExist:
-                pass
+                print(f"Búsqueda por nombre ({employee_name}): ❌")
             except Employee.MultipleObjectsReturned:
                 return Response({
                     'success': False,
-                    'message': 'Múltiples empleados encontrados con ese nombre. Por favor, especifique el ID.'
+                    'message': 'Múltiples empleados encontrados con ese nombre. Por favor, especifique el RUT.'
                 }, status=400)
         
         if not employee:
             return Response({
                 'success': False,
-                'message': 'Se requiere nombre o ID del empleado'
+                'message': 'No se encontró un empleado con el RUT o nombre proporcionado.'
             }, status=400)
         
         # Llamada a la función auxiliar con verificación anti-duplicados
