@@ -45,6 +45,10 @@ const App = () => {
     const [countdown, setCountdown] = useState(null);
     const [showConfirmation, setShowConfirmation] = useState(false);
 
+    // Estados para el modal de rechazo
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [password, setPassword] = useState('');
+
     const videoRef = useRef(null);
     const cameraViewRef = useRef(null);
 
@@ -154,6 +158,8 @@ const App = () => {
         setCurrentProcess(null);
         setCountdown(null);
         setShowConfirmation(false);
+        setShowRejectModal(false);
+        setPassword('');
     };
 
     // Iniciar proceso de marcado
@@ -229,17 +235,8 @@ const App = () => {
 
                 setShowConfirmation(true);
             } else {
-                // Reproduce el sonido de error
-                playAudioSequence(errorAudio, intenteNuevamenteAudio);
-
-                // Error en el reconocimiento
-                const errorMsg = data.message || 'Rostro no reconocido';
-                showMessage(`❌ ${errorMsg}`, 'error');
-
-                // Restablecer estados para reintentar
-                setTimeout(() => {
-                    resetProcess();
-                }, 3000);
+                // Mostrar modal de rechazo con opciones
+                setShowRejectModal(true);
             }
 
         } catch (error) {
@@ -254,6 +251,69 @@ const App = () => {
 
     const closePersonInfo = () => {
         setRecognizedPerson(null);
+    };
+
+    // Manejar el registro manual con contraseña
+    const handleManualEntry = async () => {
+        if (!password.trim()) {
+            showMessage('⚠️ Ingresa una contraseña', 'warning');
+            return;
+        }
+
+        try {
+            // Obtener empleados para mostrar lista
+            const response = await fetch(`${API_BASE_URL}/employees/`, {
+                headers: NGROK_HEADERS
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                const employees = data.employees || [];
+                
+                if (employees.length > 0) {
+                    // Por simplicidad, usar el primer empleado (podrías mostrar una lista)
+                    const employee = employees[0];
+                    
+                    // Marcar asistencia manual
+                    const markResponse = await fetch(`${API_BASE_URL}/mark-attendance/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...NGROK_HEADERS
+                        },
+                        body: JSON.stringify({
+                            employee_name: employee.name,
+                            type: currentProcess,
+                            latitude: null,
+                            longitude: null,
+                            address: 'Tótem de Asistencia - Registro Manual',
+                            notes: 'Registro manual con contraseña'
+                        })
+                    });
+
+                    if (markResponse.ok) {
+                        setRecognizedPerson({
+                            name: employee.name,
+                            id: employee.employee_id || employee.id,
+                            rut: employee.rut,
+                            department: employee.department,
+                            type: currentProcess,
+                            confidence: 'Manual',
+                            isManual: true
+                        });
+                        setShowRejectModal(false);
+                        setShowConfirmation(true);
+                    } else {
+                        showMessage('❌ Error al registrar asistencia', 'error');
+                    }
+                } else {
+                    showMessage('❌ No hay empleados registrados', 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Error en registro manual:', error);
+            showMessage('❌ Error de conexión', 'error');
+        }
     };
 
     return (
@@ -393,17 +453,104 @@ const App = () => {
                 </div>
             </div>
 
+            {/* Modal de rechazo con opciones */}
+            {showRejectModal && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <div className="modal-content">
+                            <div className="modal-icon">❌</div>
+                            <h2 className="modal-title" style={{ color: '#dc2626' }}>
+                                ROSTRO NO RECONOCIDO
+                            </h2>
+                            
+                            <div className="modal-info">
+                                <p style={{ color: '#374151', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+                                    No se pudo verificar tu identidad. ¿Qué deseas hacer?
+                                </p>
+
+                                {/* Input de contraseña */}
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+                                        Ingresa contraseña de emergencia:
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        placeholder="Cualquier contraseña"
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.75rem',
+                                            border: '2px solid #d1d5db',
+                                            borderRadius: '0.5rem',
+                                            fontSize: '1rem',
+                                            outline: 'none'
+                                        }}
+                                        onFocus={(e) => e.target.style.borderColor = '#2563eb'}
+                                        onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleManualEntry();
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+                                <button
+                                    onClick={handleManualEntry}
+                                    className="modal-button"
+                                    style={{ backgroundColor: '#16a34a' }}
+                                >
+                                    🔐 REGISTRAR CON CONTRASEÑA
+                                </button>
+                                
+                                <button
+                                    onClick={() => {
+                                        // Reproduce sonidos de error e intente nuevamente
+                                        playAudioSequence(errorAudio, intenteNuevamenteAudio);
+                                        
+                                        setShowRejectModal(false);
+                                        setPassword('');
+                                        // Reiniciar cámara para intentar nuevamente
+                                        setCountdown(4);
+                                        contadorAudio.play().catch(err => console.error(err));
+                                    }}
+                                    className="modal-button"
+                                    style={{ backgroundColor: '#2563eb' }}
+                                >
+                                    🔄 INTENTAR NUEVAMENTE
+                                </button>
+                                
+                                <button
+                                    onClick={() => {
+                                        resetProcess();
+                                        showMessage('🔄 Proceso cancelado', 'warning');
+                                    }}
+                                    className="modal-button"
+                                    style={{ backgroundColor: '#dc2626' }}
+                                >
+                                    ❌ CANCELAR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Modal de confirmación */}
             {recognizedPerson && (
                 <div className="modal-overlay">
                     <div className="modal">
                         <div className="modal-content">
                             <div className="modal-icon">
-                                {recognizedPerson.isDuplicate ? '⚠️' : '✅'}
+                                {recognizedPerson.isDuplicate ? '⚠️' : recognizedPerson.isManual ? '🔐' : '✅'}
                             </div>
 
                             <h2 className={`modal-title ${recognizedPerson.isDuplicate ? 'modal-title-warning' : 'modal-title-success'}`}>
-                                {recognizedPerson.isDuplicate ? 'REGISTRO DUPLICADO' : 'REGISTRO EXITOSO'}
+                                {recognizedPerson.isDuplicate ? 'REGISTRO DUPLICADO' : 
+                                 recognizedPerson.isManual ? 'REGISTRO MANUAL' : 'REGISTRO EXITOSO'}
                             </h2>
 
                             <div className="modal-info">
@@ -436,7 +583,7 @@ const App = () => {
 
                             <div className="modal-extra-info">
                                 <div className="modal-confidence">
-                                    Confianza: {recognizedPerson.confidence}
+                                    {recognizedPerson.isManual ? 'Método: Contraseña Manual' : `Confianza: ${recognizedPerson.confidence}`}
                                 </div>
                             </div>
 
