@@ -1,423 +1,517 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-// Configuración - Conexión al Backend
-// ⚠️ IMPORTANTE: URL del BACKEND de ngrok + /api
+// Configuración del backend
 const API_BASE_URL = 'https://2699959d4052.ngrok-free.app/api';
-
-// Headers comunes para ngrok
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
 
 const App = () => {
-    // Estado de la aplicación
-    const [status, setStatus] = useState('offline');
-    const [processType, setProcessType] = useState(null);
-    const [isCameraActive, setIsCameraActive] = useState(false);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [resultMessage, setResultMessage] = useState('');
-    const [resultType, setResultType] = useState('');
-    const [employeeInfo, setEmployeeInfo] = useState(null);
+    // Estados principales
+    const [systemStatus, setSystemStatus] = useState('checking');
+    const [currentProcess, setCurrentProcess] = useState(null);
+    const [cameraActive, setCameraActive] = useState(false);
+    const [processing, setProcessing] = useState(false);
+    const [message, setMessage] = useState('');
+    const [messageType, setMessageType] = useState('');
+    const [recognizedPerson, setRecognizedPerson] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [loadingText, setLoadingText] = useState('');
+    const [currentTime, setCurrentTime] = useState(new Date());
 
-    // Referencias a elementos del DOM
     const videoRef = useRef(null);
 
-    // Verificar el estado del sistema
-    const checkSystemStatus = async () => {
-        try {
-            setLoadingText('Verificando estado del sistema...');
-            setLoading(true);
-            console.log('🔄 Verificando estado del sistema...');
-            
-            const response = await fetch(`${API_BASE_URL}/health/`, {
-                headers: {
-                    ...NGROK_HEADERS
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
-            }
-            const data = await response.json();
-            console.log('✅ Respuesta del sistema:', data);
-            
-            if (data.status === 'OK') {
-                setStatus('online');
-                console.log('✅ Sistema online');
-            } else {
-                throw new Error('Sistema no disponible');
-            }
-        } catch (error) {
-            setStatus('offline');
-            console.error('❌ Error verificando sistema:', error);
-            showResult(`🔴 Error de conexión: ${error.message}. Verifica que ngrok esté activo.`, 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    // Actualizar hora cada segundo
     useEffect(() => {
-        checkSystemStatus();
-        const intervalId = setInterval(checkSystemStatus, 30000);
-        return () => clearInterval(intervalId);
+        const timer = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    // Verificar estado del sistema
+    useEffect(() => {
+        const checkSystem = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health/`, {
+                    headers: NGROK_HEADERS
+                });
+                if (response.ok) {
+                    setSystemStatus('online');
+                } else {
+                    setSystemStatus('offline');
+                }
+            } catch (error) {
+                setSystemStatus('offline');
+            }
+        };
+
+        checkSystem();
+        const interval = setInterval(checkSystem, 30000);
+        return () => clearInterval(interval);
     }, []);
 
     // Manejo de la cámara
     useEffect(() => {
-        let streamInstance = null;
-        
-        const startCamera = async () => {
-            if (!isCameraActive || isProcessing || !videoRef.current) return;
-            
-            console.log('📹 Iniciando cámara...');
+        let stream = null;
 
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                const isHTTPS = window.location.protocol === 'https:';
-                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                
-                if (!isHTTPS && !isLocalhost) {
-                    throw new Error('⚠️ CÁMARA REQUIERE HTTPS - Usa ngrok o accede desde localhost');
-                } else {
-                    throw new Error('Tu navegador no soporta acceso a cámara');
-                }
-            }
+        const startCamera = async () => {
+            if (!cameraActive || !videoRef.current) return;
 
             try {
-                streamInstance = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        width: { ideal: 640 }, 
-                        height: { ideal: 480 }, 
-                        facingMode: 'user' 
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 1280, max: 1920 },
+                        height: { ideal: 720, max: 1080 },
+                        facingMode: 'user'
                     }
                 });
-                
-                if (streamInstance && streamInstance.getVideoTracks().length > 0) {
-                    videoRef.current.srcObject = streamInstance;
-                    
-                    await new Promise((resolve, reject) => {
-                        videoRef.current.onloadedmetadata = resolve;
-                        videoRef.current.onerror = reject;
-                        setTimeout(() => reject(new Error('Timeout cargando video')), 5000);
-                    });
-                    
-                    console.log('✅ Cámara iniciada correctamente');
-                }
+
+                videoRef.current.srcObject = stream;
+                await videoRef.current.play();
             } catch (error) {
-                console.error('❌ Error iniciando cámara:', error);
-                let errorMessage = 'No se pudo acceder a la cámara. ';
-                switch (error.name) {
-                    case 'NotAllowedError':
-                        errorMessage += 'Permite el acceso a la cámara en la configuración del navegador.';
-                        break;
-                    case 'NotFoundError':
-                        errorMessage += 'No se encontró ninguna cámara en el dispositivo.';
-                        break;
-                    case 'NotReadableError':
-                        errorMessage += 'La cámara está siendo usada por otra aplicación.';
-                        break;
-                    default:
-                        errorMessage += `Error: ${error.message}`;
-                }
-                showResult(errorMessage, 'error');
-                resetInterface();
+                console.error('Error accediendo a la cámara:', error);
+                showMessage('⚠️ No se pudo acceder a la cámara. Verifica los permisos.', 'error');
+                resetProcess();
             }
         };
 
-        if (isCameraActive) {
+        if (cameraActive) {
             startCamera();
         }
 
         return () => {
-            if (streamInstance) {
-                streamInstance.getTracks().forEach(track => track.stop());
-                console.log('🛑 Cámara detenida');
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
             }
         };
-    }, [isCameraActive, isProcessing]);
+    }, [cameraActive]);
 
-    const markAttendance = (type) => {
-        if (isProcessing || isCameraActive) {
-            console.log('⚠️ Proceso ya en curso');
-            return;
+    // Auto-reset después de inactividad
+    useEffect(() => {
+        let timeout;
+        if (cameraActive && !processing) {
+            timeout = setTimeout(() => {
+                resetProcess();
+                showMessage('⏰ Tiempo agotado. Intenta nuevamente.', 'warning');
+            }, 30000); // 30 segundos
         }
-        
-        if (status !== 'online') {
-            showResult('❌ Sistema sin conexión', 'error');
-            return;
-        }
-        
-        console.log(`🚀 Iniciando proceso de ${type}`);
-        setProcessType(type);
-        clearResult();
-        setIsCameraActive(true);
-        showResult(`📸 Presiona TOMAR FOTO para ${type.toUpperCase()}`, 'success');
+        return () => clearTimeout(timeout);
+    }, [cameraActive, processing]);
+
+    // Funciones auxiliares
+    const showMessage = (text, type) => {
+        setMessage(text);
+        setMessageType(type);
+        setTimeout(() => {
+            setMessage('');
+            setMessageType('');
+        }, 6000);
     };
 
-    const takePhoto = async () => {
-        if (!isCameraActive || isProcessing) {
-            showResult('❌ Cámara no disponible', 'error');
-            return;
-        }
-        
-        if (!videoRef.current || videoRef.current.readyState !== 4) {
-            showResult('❌ Video no está listo', 'error');
-            return;
-        }
-        
+    const resetProcess = () => {
+        setCameraActive(false);
+        setProcessing(false);
+        setCurrentProcess(null);
+    };
+
+    // Iniciar proceso de marcado
+    const startAttendance = (type) => {
+        if (systemStatus !== 'online' || processing || cameraActive) return;
+
+        setCurrentProcess(type);
+        setCameraActive(true);
+        showMessage(`📸 Mira a la cámara y presiona el botón azul para marcar tu ${type.toUpperCase()}`, 'success');
+    };
+
+    // Capturar y procesar foto
+    const capturePhoto = async () => {
+        if (!videoRef.current || processing) return;
+
         try {
-            setIsProcessing(true);
-            setLoadingText(`Procesando ${processType.toUpperCase()}...`);
+            setProcessing(true);
             setLoading(true);
-            
-            console.log('📸 Tomando foto...');
-            
-            // Esperar un momento para que la UI se actualice
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
+
+            // Crear canvas para capturar la imagen
             const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
+            const video = videoRef.current;
             
-            // Configurar canvas con las dimensiones del video
-            canvas.width = videoRef.current.videoWidth;
-            canvas.height = videoRef.current.videoHeight;
+            canvas.width = Math.min(video.videoWidth, 1280);
+            canvas.height = Math.min(video.videoHeight, 720);
             
-            // Dibujar el frame actual del video
-            context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            // Convertir a base64 con mejor calidad
-            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.95); 
-            
-            console.log('📸 Foto capturada, tamaño:', imageDataUrl.length, 'caracteres');
-            
-            await processPhoto(imageDataUrl, processType);
-            
+            // Convertir a base64
+            const imageData = canvas.toDataURL('image/jpeg', 0.85);
+
+            // Enviar al servidor
+            const response = await fetch(`${API_BASE_URL}/verify-face/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...NGROK_HEADERS
+                },
+                body: JSON.stringify({
+                    photo: imageData,
+                    type: currentProcess,
+                    latitude: null,
+                    longitude: null,
+                    address: 'Tótem de Asistencia'
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && (data.success || data.duplicate_found)) {
+                // Reconocimiento exitoso
+                const employee = data.employee;
+                if (employee) {
+                    setRecognizedPerson({
+                        name: employee.name,
+                        id: employee.employee_id || employee.id,
+                        rut: employee.rut,
+                        department: employee.department,
+                        type: currentProcess,
+                        confidence: data.verification?.confidence || 'Alta',
+                        isDuplicate: data.duplicate_found
+                    });
+                }
+                
+                resetProcess();
+            } else {
+                // Error en el reconocimiento
+                const errorMsg = data.message || 'Rostro no reconocido';
+                showMessage(`❌ ${errorMsg}`, 'error');
+                
+                // Mantener cámara activa para reintento
+                setTimeout(() => {
+                    if (cameraActive) {
+                        showMessage('🔄 Intenta nuevamente. Acércate más a la cámara.', 'warning');
+                    }
+                }, 3000);
+            }
+
         } catch (error) {
-            console.error('❌ Error tomando foto:', error);
-            showResult('❌ Error al tomar la foto', 'error');
+            console.error('Error procesando foto:', error);
+            showMessage('❌ Error de conexión. Intenta nuevamente.', 'error');
         } finally {
-            setIsProcessing(false);
+            setProcessing(false);
             setLoading(false);
         }
     };
 
-    const processPhoto = async (photoData, type) => {
-        try {
-            console.log(`🔍 Procesando ${type} con reconocimiento facial...`);
-            
-            // Validar que la foto tenga contenido
-            if (!photoData || !photoData.startsWith('data:image/')) {
-                throw new Error('Formato de imagen inválido');
-            }
-            
-            // Preparar datos para envío
-            const requestData = {
-                photo: photoData,
-                type: type,
-                latitude: null,
-                longitude: null,
-                address: 'Registro Web Facial'
-            };
-            
-            console.log('📤 Enviando datos:', {
-                ...requestData,
-                photo: `${photoData.substring(0, 50)}... (${photoData.length} chars)`
-            });
-            
-            const response = await fetch(`${API_BASE_URL}/verify-face/`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    ...NGROK_HEADERS
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-            console.log('📥 Status de respuesta:', response.status, response.statusText);
-            
-            const responseText = await response.text();
-            console.log('📥 Respuesta raw completa:', responseText);
-            
-            let data;
-            try {
-                data = JSON.parse(responseText);
-                console.log('📥 Datos parseados:', data);
-            } catch (e) {
-                console.error('❌ Error parseando JSON:', e);
-                console.error('📥 Respuesta que falló:', responseText);
-                throw new Error(`Respuesta no es JSON válido: ${responseText.substring(0, 200)}`);
-            }
-            
-            if (response.ok && (data.success || data.duplicate_found)) {
-                console.log('✅ Reconocimiento exitoso!');
-                showResult(`✅ ¡${type.toUpperCase()} REGISTRADA!`, 'success', data);
-                resetInterface();
-            } else {
-                const errorMessage = data.message || `Error ${response.status}: ${response.statusText}`;
-                console.log('❌ Error del servidor:', errorMessage);
-                showResult(`❌ ${errorMessage}`, 'error');
-                
-                setTimeout(() => {
-                    if (isCameraActive) {
-                        showResult(`🔄 Intenta de nuevo - ${type.toUpperCase()}`, 'warning');
-                    }
-                }, 3000);
-            }
-            
-        } catch (error) {
-            console.error('❌ Error completo:', error);
-            showResult(`❌ Error: ${error.message}`, 'error');
-            
-            setTimeout(() => {
-                if (isCameraActive) {
-                    showResult(`🔄 Intenta de nuevo - ${type.toUpperCase()}`, 'warning');
-                }
-            }, 3000);
-        }
-    };
-
     const cancelProcess = () => {
-        console.log('🚫 Proceso cancelado por el usuario');
-        resetInterface();
-        showResult('🚫 Proceso cancelado', 'error');
+        resetProcess();
+        showMessage('❌ Proceso cancelado', 'error');
     };
 
-    const resetInterface = () => {
-        setIsCameraActive(false);
-        setIsProcessing(false);
-        setProcessType(null);
-        setEmployeeInfo(null);
-        setTimeout(clearResult, 3000);
-    };
-
-    const clearResult = () => {
-        setResultMessage('');
-        setResultType('');
-        setEmployeeInfo(null);
-    };
-
-    const showResult = (message, type, data = null) => {
-        console.log(`📢 Mostrando resultado: ${message} (${type})`);
-        setResultMessage(message);
-        setResultType(type);
-        
-        if (data && (data.success || data.duplicate_found)) {
-            const employee = data.employee || { 
-                name: 'Empleado', 
-                employee_id: 'ID', 
-                rut: 'RUT', 
-                department: 'Departamento' 
-            };
-            const verification = data.verification || { confidence: '95%' };
-            setEmployeeInfo({ ...employee, verification, type });
-            
-            console.log('👤 Información del empleado:', employee);
-        }
+    const closePersonInfo = () => {
+        setRecognizedPerson(null);
+        // Auto-mostrar instrucciones después de cerrar
+        setTimeout(() => {
+            showMessage('👋 ¡Listo! Puedes marcar otra asistencia.', 'success');
+        }, 500);
     };
 
     return (
-        <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4" style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-        }}>
-            <div className="container bg-white rounded-2xl shadow-xl p-6 text-center w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto mt-5">
-                <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
-                    Control de Asistencia
-                </h1>
-                <div className={`status px-4 py-1 rounded-full font-semibold text-sm mb-4 transition-colors duration-300 ${
-                    status === 'online' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                    {status === 'online' ? '🟢 Sistema listo' : '🔴 Sin conexión'}
-                </div>
-                
-                <div className="main-buttons grid grid-cols-2 gap-4 my-4">
-                    <button
-                        className="btn-main btn-entrada px-6 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={() => markAttendance('entrada')}
-                        disabled={status !== 'online' || isProcessing || isCameraActive}
-                    >
-                        📸 ENTRADA
-                    </button>
-                    <button
-                        className="btn-main btn-salida px-6 py-4 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={() => markAttendance('salida')}
-                        disabled={status !== 'online' || isProcessing || isCameraActive}
-                    >
-                        📸 SALIDA
-                    </button>
-                </div>
-
-                <div className="qr-section my-4">
-                    <p className="text-xs text-gray-600 mb-2">¿No funciona la cámara? Usa código QR:</p>
-                    <button
-                        className="btn-qr px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg"
-                        onClick={() => alert('Escanea QR con el RUT del empleado')}
-                    >
-                        📱 Marcar con QR
-                    </button>
-                </div>
-
-                <div className={`camera-section flex flex-col items-center my-4 ${isCameraActive ? 'block' : 'hidden'}`}>
-                    <div className="camera-container relative w-full aspect-[4/3] bg-black rounded-xl overflow-hidden shadow-lg mb-4 flex items-center justify-center">
-                        <div className={`camera-placeholder absolute inset-0 flex flex-col items-center justify-center text-gray-500 text-sm p-4 text-center ${isCameraActive ? 'hidden' : 'flex'}`}>
-                            <div>📷 Cámara inactiva</div>
-                            <div className="mt-2 text-xs">Presiona un botón para iniciar</div>
+        <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 flex flex-col">
+            {/* Header con hora y estado */}
+            <div className="bg-white bg-opacity-10 backdrop-blur-sm text-white p-4 lg:p-6">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
+                    <div className="flex items-center space-x-4">
+                        <div className="text-2xl lg:text-3xl font-bold">
+                            🏢 Control de Asistencia
                         </div>
-                        <video 
-                            ref={videoRef} 
-                            className={`camera w-full h-full object-cover ${!isCameraActive ? 'hidden' : 'block'}`} 
-                            autoPlay 
-                            playsInline
-                            muted
-                        />
-                        <div className="face-overlay absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/5 aspect-square rounded-full border-4 border-white shadow-md animate-pulse"></div>
-                    </div>
-                    
-                    <button
-                        className={`photo-button px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-full transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${!isCameraActive ? 'hidden' : 'block'}`}
-                        onClick={takePhoto}
-                        disabled={isProcessing}
-                    >
-                        {isProcessing ? '⏳ PROCESANDO...' : '📸 TOMAR FOTO'}
-                    </button>
-                    
-                    <button
-                        className={`cancel-btn px-4 py-2 mt-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-xl text-xs transition-all duration-300 ${!isCameraActive ? 'hidden' : 'block'}`}
-                        onClick={cancelProcess}
-                        disabled={isProcessing}
-                    >
-                        ❌ Cancelar
-                    </button>
-                </div>
-                
-                {resultMessage && (
-                    <div className={`result p-3 my-4 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                        resultType === 'success' ? 'bg-green-100 text-green-800' : 
-                        resultType === 'error' ? 'bg-red-100 text-red-800' : 
-                        'bg-yellow-100 text-yellow-800'
-                    }`}>
-                        {resultMessage}
-                    </div>
-                )}
-                
-                {employeeInfo && (
-                    <div className="employee-info bg-blue-100 border border-blue-400 rounded-xl p-4 my-4">
-                        <div className="employee-name text-lg font-bold text-blue-700">{employeeInfo.name}</div>
-                        <div className="employee-details text-xs text-gray-600 mt-2">
-                            <p>📋 {employeeInfo.employee_id} | 🆔 {employeeInfo.rut}</p>
-                            <p>🏢 {employeeInfo.department} | 📍 {employeeInfo.type.toUpperCase()}</p>
-                        </div>
-                        <div className="confidence text-xs font-semibold text-green-600 mt-2">
-                            🎯 {employeeInfo.verification.confidence} | ⏰ {new Date().toLocaleString('es-CL')}
+                        <div className={`px-4 py-2 rounded-full text-sm lg:text-base font-semibold ${
+                            systemStatus === 'online' 
+                                ? 'bg-green-500 bg-opacity-80' 
+                                : systemStatus === 'offline'
+                                ? 'bg-red-500 bg-opacity-80'
+                                : 'bg-yellow-500 bg-opacity-80'
+                        }`}>
+                            {systemStatus === 'online' ? '🟢 Sistema Activo' : 
+                             systemStatus === 'offline' ? '🔴 Sin Conexión' : '🟡 Verificando...'}
                         </div>
                     </div>
-                )}
+                    <div className="text-right">
+                        <div className="text-xl lg:text-2xl font-bold">
+                            {currentTime.toLocaleTimeString('es-CL', { 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            })}
+                        </div>
+                        <div className="text-sm lg:text-base opacity-90">
+                            {currentTime.toLocaleDateString('es-CL', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            })}
+                        </div>
+                    </div>
+                </div>
             </div>
-            
+
+            {/* Contenido principal */}
+            <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
+                <div className="w-full max-w-4xl">
+                    
+                    {/* Vista principal - Sin cámara activa */}
+                    {!cameraActive && (
+                        <div className="text-center">
+                            {/* Instrucciones principales */}
+                            <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-12 mb-8">
+                                <div className="mb-8">
+                                    <div className="text-6xl lg:text-8xl mb-4">👤</div>
+                                    <h1 className="text-3xl lg:text-5xl font-bold text-gray-800 mb-4">
+                                        ¡Marca tu Asistencia!
+                                    </h1>
+                                    <p className="text-lg lg:text-2xl text-gray-600 mb-8">
+                                        Selecciona una opción y sigue las instrucciones
+                                    </p>
+                                </div>
+
+                                {/* Botones principales - Responsivos */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-3xl mx-auto">
+                                    <button
+                                        onClick={() => startAttendance('entrada')}
+                                        disabled={systemStatus !== 'online'}
+                                        className="group bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-8 lg:py-12 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-xl"
+                                    >
+                                        <div className="text-4xl lg:text-6xl mb-4">🟢</div>
+                                        <div className="text-2xl lg:text-4xl font-bold mb-2">ENTRADA</div>
+                                        <div className="text-sm lg:text-lg opacity-90">
+                                            Marca tu llegada al trabajo
+                                        </div>
+                                    </button>
+                                    
+                                    <button
+                                        onClick={() => startAttendance('salida')}
+                                        disabled={systemStatus !== 'online'}
+                                        className="group bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 disabled:from-gray-300 disabled:to-gray-400 text-white font-bold py-8 lg:py-12 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-xl"
+                                    >
+                                        <div className="text-4xl lg:text-6xl mb-4">🔴</div>
+                                        <div className="text-2xl lg:text-4xl font-bold mb-2">SALIDA</div>
+                                        <div className="text-sm lg:text-lg opacity-90">
+                                            Marca tu salida del trabajo
+                                        </div>
+                                    </button>
+                                </div>
+
+                                {/* Instrucciones adicionales */}
+                                <div className="mt-8 lg:mt-12 grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+                                    <div className="bg-blue-50 rounded-xl p-4 lg:p-6">
+                                        <div className="text-2xl lg:text-3xl mb-2">📸</div>
+                                        <div className="font-semibold text-gray-800 mb-1">Paso 1</div>
+                                        <div className="text-sm lg:text-base text-gray-600">
+                                            Presiona ENTRADA o SALIDA
+                                        </div>
+                                    </div>
+                                    <div className="bg-green-50 rounded-xl p-4 lg:p-6">
+                                        <div className="text-2xl lg:text-3xl mb-2">👀</div>
+                                        <div className="font-semibold text-gray-800 mb-1">Paso 2</div>
+                                        <div className="text-sm lg:text-base text-gray-600">
+                                            Mira directamente a la cámara
+                                        </div>
+                                    </div>
+                                    <div className="bg-purple-50 rounded-xl p-4 lg:p-6">
+                                        <div className="text-2xl lg:text-3xl mb-2">✅</div>
+                                        <div className="font-semibold text-gray-800 mb-1">Paso 3</div>
+                                        <div className="text-sm lg:text-base text-gray-600">
+                                            Espera la confirmación
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Vista de cámara activa */}
+                    {cameraActive && (
+                        <div className="bg-white rounded-3xl shadow-2xl p-6 lg:p-8">
+                            <div className="text-center mb-6">
+                                <h2 className="text-2xl lg:text-4xl font-bold text-gray-800 mb-4">
+                                    📸 Marcando {currentProcess?.toUpperCase()}
+                                </h2>
+                                <p className="text-lg lg:text-xl text-gray-600">
+                                    Posiciónate frente a la cámara y presiona el botón azul
+                                </p>
+                            </div>
+
+                            {/* Contenedor de la cámara */}
+                            <div className="relative bg-black rounded-2xl overflow-hidden aspect-video max-w-3xl mx-auto mb-6">
+                                <video
+                                    ref={videoRef}
+                                    className="w-full h-full object-cover"
+                                    autoPlay
+                                    playsInline
+                                    muted
+                                />
+                                
+                                {/* Overlay con círculo guía */}
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-48 h-48 lg:w-64 lg:h-64 border-4 border-white rounded-full animate-pulse opacity-80"></div>
+                                </div>
+                                
+                                {/* Instrucciones en pantalla */}
+                                <div className="absolute top-4 left-4 right-4">
+                                    <div className="bg-black bg-opacity-60 text-white text-center py-3 px-4 rounded-xl">
+                                        <div className="text-lg lg:text-xl font-semibold">
+                                            👤 Posiciónate dentro del círculo
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Contador de tiempo */}
+                                <div className="absolute bottom-4 left-4 right-4">
+                                    <div className="bg-black bg-opacity-60 text-white text-center py-2 px-4 rounded-xl">
+                                        <div className="text-sm lg:text-base">
+                                            ⏱️ Tiempo restante: 30 segundos
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Botones de control */}
+                            <div className="flex gap-4 lg:gap-6 max-w-2xl mx-auto">
+                                <button
+                                    onClick={capturePhoto}
+                                    disabled={processing}
+                                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 text-white font-bold py-4 lg:py-6 px-6 lg:px-8 rounded-2xl text-lg lg:text-2xl transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100"
+                                >
+                                    {processing ? (
+                                        <>
+                                            <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+                                            PROCESANDO...
+                                        </>
+                                    ) : (
+                                        <>📸 TOMAR FOTO</>
+                                    )}
+                                </button>
+                                
+                                <button
+                                    onClick={cancelProcess}
+                                    disabled={processing}
+                                    className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white font-bold py-4 lg:py-6 px-6 lg:px-8 rounded-2xl text-lg lg:text-2xl transition-colors duration-300"
+                                >
+                                    ❌ CANCELAR
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Mensaje de estado */}
+                    {message && (
+                        <div className="fixed bottom-4 left-4 right-4 lg:bottom-8 lg:left-8 lg:right-8 z-30">
+                            <div className={`max-w-2xl mx-auto p-4 lg:p-6 rounded-2xl text-center font-bold text-lg lg:text-xl shadow-2xl ${
+                                messageType === 'success' ? 'bg-green-500 text-white' :
+                                messageType === 'error' ? 'bg-red-500 text-white' :
+                                'bg-yellow-500 text-black'
+                            }`}>
+                                {message}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Footer informativo */}
+            <div className="bg-white bg-opacity-10 backdrop-blur-sm text-white p-4 text-center">
+                <div className="text-sm lg:text-base opacity-80">
+                    🔐 Sistema seguro con reconocimiento facial | 📱 Compatible con todos los dispositivos
+                </div>
+            </div>
+
+            {/* Modal de confirmación - Pantalla completa en móvil */}
+            {recognizedPerson && (
+                <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-3xl p-6 lg:p-8 max-w-lg w-full shadow-2xl transform animate-bounce">
+                        <div className="text-center">
+                            {/* Icono de éxito */}
+                            <div className="text-8xl lg:text-9xl mb-6">
+                                {recognizedPerson.isDuplicate ? '⚠️' : '✅'}
+                            </div>
+                            
+                            {/* Título */}
+                            <h2 className="text-2xl lg:text-3xl font-bold mb-6">
+                                {recognizedPerson.isDuplicate ? (
+                                    <span className="text-yellow-600">¡Ya Registrado!</span>
+                                ) : (
+                                    <span className="text-green-600">¡Registro Exitoso!</span>
+                                )}
+                            </h2>
+                            
+                            {/* Información del empleado */}
+                            <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+                                <div className="text-2xl lg:text-3xl font-bold text-blue-700 mb-4">
+                                    👤 {recognizedPerson.name}
+                                </div>
+                                
+                                <div className="grid grid-cols-1 gap-3 text-left">
+                                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                                        <span className="font-semibold text-gray-700">📋 ID Empleado:</span>
+                                        <span className="font-mono text-gray-900">{recognizedPerson.id}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                                        <span className="font-semibold text-gray-700">🆔 RUT:</span>
+                                        <span className="font-mono text-gray-900">{recognizedPerson.rut}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2 border-b border-gray-200">
+                                        <span className="font-semibold text-gray-700">🏢 Departamento:</span>
+                                        <span className="text-gray-900">{recognizedPerson.department}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-2">
+                                        <span className="font-semibold text-gray-700">📍 Acción:</span>
+                                        <span className={`font-bold px-3 py-1 rounded-full text-white ${
+                                            recognizedPerson.type === 'entrada' ? 'bg-green-500' : 'bg-red-500'
+                                        }`}>
+                                            {recognizedPerson.type?.toUpperCase()}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Información adicional */}
+                            <div className="bg-blue-50 rounded-xl p-4 mb-6">
+                                <div className="text-sm lg:text-base font-semibold text-blue-700 mb-1">
+                                    🎯 Confianza: {recognizedPerson.confidence}
+                                </div>
+                                <div className="text-sm text-gray-600">
+                                    ⏰ {new Date().toLocaleString('es-CL')}
+                                </div>
+                            </div>
+                            
+                            {/* Mensaje adicional para duplicados */}
+                            {recognizedPerson.isDuplicate && (
+                                <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-4 mb-6">
+                                    <div className="text-yellow-800 font-semibold">
+                                        ⏰ Ya tienes un registro de {recognizedPerson.type} reciente
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {/* Botón de continuar */}
+                            <button
+                                onClick={closePersonInfo}
+                                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 lg:py-5 px-6 rounded-2xl text-lg lg:text-xl transition-all duration-300 transform hover:scale-105"
+                            >
+                                ✅ CONTINUAR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading overlay global */}
             {loading && (
-                <div className="loading fixed inset-0 flex flex-col items-center justify-center bg-white bg-opacity-95 z-50">
-                    <div className="spinner w-10 h-10 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
-                    <div className="loading-text mt-4 text-gray-800 font-semibold text-base">{loadingText}</div>
+                <div className="fixed inset-0 bg-white bg-opacity-95 flex flex-col items-center justify-center z-40">
+                    <div className="w-16 h-16 lg:w-20 lg:h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-6"></div>
+                    <div className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+                        🔍 Analizando rostro...
+                    </div>
+                    <div className="text-lg lg:text-xl text-gray-600">
+                        Por favor mantente quieto
+                    </div>
                 </div>
             )}
         </div>
