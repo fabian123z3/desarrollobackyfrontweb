@@ -10,7 +10,7 @@ import contadorSound from './assets/contador.mp3';
 
 
 // Configuración del backend
-const API_BASE_URL = 'https://cb14ced919b2.ngrok-free.app/api';
+const API_BASE_URL = 'https://247f0bcafed1.ngrok-free.app';
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
