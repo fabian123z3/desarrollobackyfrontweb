@@ -1177,3 +1177,23 @@ body {
    font-size: 2rem;
  }
 }
+.countdown-display {
+  font-size: 8rem;
+  font-weight: bold;
+  color: #dc2626;
+  text-align: center;
+  margin: 2rem 0;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@media (max-width: 767px) {
+  .countdown-display {
+    font-size: 6rem;
+  }
+}
