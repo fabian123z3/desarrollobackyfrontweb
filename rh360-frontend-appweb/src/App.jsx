@@ -56,6 +56,14 @@ const App = () => {
         return () => clearInterval(timer);
     }, []);
 
+    // Función para detener y reiniciar todos los audios
+    const stopAllAudio = () => {
+        [successAudio, contadorAudio, errorAudio, asistenciaAudio, intenteNuevamenteAudio, salidaAudio].forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;
+        });
+    };
+
     // Verificar estado del sistema
     useEffect(() => {
         const checkSystem = async () => {
@@ -160,6 +168,7 @@ const App = () => {
     const startAttendance = (type) => {
         if (systemStatus !== 'online' || processing || cameraActive) return;
 
+        stopAllAudio(); // Detiene cualquier audio en curso
         setCurrentProcess(type);
         setCameraActive(true);
 
@@ -229,6 +238,7 @@ const App = () => {
 
                 setShowConfirmation(true);
             } else {
+                stopAllAudio(); // Detiene cualquier audio en curso
                 // Reproduce el sonido de error
                 playAudioSequence(errorAudio, intenteNuevamenteAudio);
 
@@ -403,7 +413,7 @@ const App = () => {
                             </div>
 
                             <h2 className={`modal-title ${recognizedPerson.isDuplicate ? 'modal-title-warning' : 'modal-title-success'}`}>
-                                {recognizedPerson.isDuplicate ? 'REGISTRO DUPLICADO' : 'REGISTRO EXITOSO'}
+                                {recognizedPerson.isDuplicate ? `${recognizedPerson.type.toUpperCase()} DUPLICADA` : `${recognizedPerson.type.toUpperCase()} REGISTRADA`}
                             </h2>
 
                             <div className="modal-info">
@@ -413,10 +423,6 @@ const App = () => {
 
                                 <div className="modal-details">
                                     <div className="modal-detail-row">
-                                        <span className="modal-detail-label">ID Empleado:</span>
-                                        <span className="modal-detail-value">{recognizedPerson.id}</span>
-                                    </div>
-                                    <div className="modal-detail-row">
                                         <span className="modal-detail-label">RUT:</span>
                                         <span className="modal-detail-value">{recognizedPerson.rut}</span>
                                     </div>
@@ -424,22 +430,9 @@ const App = () => {
                                         <span className="modal-detail-label">Departamento:</span>
                                         <span className="modal-detail-value">{recognizedPerson.department}</span>
                                     </div>
-                                    <div className="modal-detail-row">
-                                        <span className="modal-detail-label">Acción:</span>
-                                        <span className={`modal-detail-badge ${recognizedPerson.type === 'entrada' ? 'badge-entrada' : 'badge-salida'
-                                            }`}>
-                                            {recognizedPerson.type?.toUpperCase()}
-                                        </span>
-                                    </div>
                                 </div>
                             </div>
-
-                            <div className="modal-extra-info">
-                                <div className="modal-confidence">
-                                    Confianza: {recognizedPerson.confidence}
-                                </div>
-                            </div>
-
+                            
                             {recognizedPerson.isDuplicate && (
                                 <div className="modal-warning-box">
                                     <div className="modal-warning-text">
