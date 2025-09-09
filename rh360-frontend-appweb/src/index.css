@@ -799,6 +799,7 @@ body {
  
  .button-desc {
    font-size: 1.5rem;
+   width: 100%; /* Asegura que la descripción también se expanda */
  }
  
  .control-button {
@@ -1027,6 +1028,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100%; /* Asegura que ocupe todo el ancho de su columna */
   }
 
   .main-button:hover {
