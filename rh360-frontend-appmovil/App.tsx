@@ -12,6 +12,7 @@ import {
   SafeAreaView,
   RefreshControl,
   Platform,
+  Image
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -37,6 +38,7 @@ interface Employee {
   department: string;
   position: string;
   has_face_registered?: boolean;
+  profile_image?: string;
 }
 
 interface AttendanceRecord {
@@ -66,7 +68,7 @@ export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
   const [facing, setFacing] = useState<'front' | 'back'>('front');
-  const [cameraMode, setCameraMode] = useState<'register' | 'verify' | 'qr' | null>(null);
+  const [cameraMode, setCameraMode] = useState<'register' | 'verify' | 'qr' | 'profile_edit' | null>(null);
   const [pendingType, setPendingType] = useState<'entrada' | 'salida'>('entrada');
   const [flashMode, setFlashMode] = useState<'auto' | 'on' | 'off'>('auto');
   const [enableTorch, setEnableTorch] = useState(false);
@@ -92,6 +94,14 @@ export default function App() {
 
   // QR Scanner States
   const [showQRScanner, setShowQRScanner] = useState(false);
+
+  // Edit Profile States
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+  const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
+  const [editedRut, setEditedRut] = useState('');
+  const [newProfilePhoto, setNewProfilePhoto] = useState<string | null>(null);
+  const [isConfirmingPhoto, setIsConfirmingPhoto] = useState(false);
+
 
   const photoInstructions = [
     'Mira al frente con expresión neutral',
@@ -341,6 +351,11 @@ export default function App() {
           setCurrentPhotoIndex(prev => prev + 1);
           setIsLoading(false);
         }
+      } else if (cameraMode === 'profile_edit') {
+        setNewProfilePhoto(photoData);
+        setShowCamera(false);
+        setIsConfirmingPhoto(true);
+        setIsLoading(false);
       }
       
     } catch (error) {
@@ -832,6 +847,79 @@ export default function App() {
     }
   };
 
+  // ------------------------------------------
+  // NUEVAS FUNCIONES PARA EDITAR PERFIL
+  // ------------------------------------------
+
+  const openEditProfileModal = (employee: Employee) => {
+    setEmployeeToEdit(employee);
+    setEditedRut(employee.rut);
+    setShowEditProfileModal(true);
+  };
+  
+  const handleEditProfile = async () => {
+    if (!employeeToEdit || !isOnline || isLoading) return;
+
+    if (editedRut && !validateRut(editedRut)) {
+      Alert.alert('❌ Error', 'RUT inválido');
+      return;
+    }
+    
+    setIsLoading(true);
+
+    const body: { rut?: string; photo_data?: string } = {};
+    if (editedRut && editedRut !== employeeToEdit.rut) {
+      body.rut = cleanRutForBackend(editedRut);
+    }
+    if (newProfilePhoto) {
+      body.photo_data = newProfilePhoto;
+    }
+
+    if (Object.keys(body).length === 0) {
+      Alert.alert('⚠️ Aviso', 'No se realizaron cambios');
+      setIsLoading(false);
+      setShowEditProfileModal(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/update-employee-profile/${employeeToEdit.id}/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        await loadEmployees(); // Recargar la lista de empleados
+        // Actualizar el empleado seleccionado si es el que se editó
+        if (selectedEmployee?.id === employeeToEdit.id) {
+          const updatedEmployee = { ...selectedEmployee, ...data.employee };
+          setSelectedEmployee(updatedEmployee);
+          await saveToStorage('selectedEmployee', updatedEmployee);
+        }
+        
+        Alert.alert('✅ Éxito', `Perfil de ${employeeToEdit.name} actualizado`);
+        setShowEditProfileModal(false);
+        setNewProfilePhoto(null);
+      } else {
+        Alert.alert('❌ Error', data.message || 'Error al actualizar perfil');
+      }
+    } catch (error) {
+      console.error('Error actualizando perfil:', error);
+      Alert.alert('❌ Error', 'Error de conexión. Intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const startProfilePhotoCapture = () => {
+    setShowEditProfileModal(false);
+    setCameraMode('profile_edit');
+    setShowCamera(true);
+  };
+
   const renderFlashButton = () => {
     const flashIcons = {
       'off': '🔦',
@@ -1112,6 +1200,38 @@ export default function App() {
        </View>
      </Modal>
 
+     <Modal visible={isConfirmingPhoto} transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modal}>
+          <Text style={styles.modalTitle}>¿Te gusta la foto?</Text>
+          {newProfilePhoto && (
+            <Image source={{ uri: newProfilePhoto }} style={styles.confirmPhotoPreview} />
+          )}
+          <View style={styles.modalButtons}>
+            <TouchableOpacity 
+              style={[styles.modalButton, {backgroundColor: '#27ae60'}]}
+              onPress={() => {
+                setIsConfirmingPhoto(false);
+                setShowEditProfileModal(true);
+              }}
+            >
+              <Text style={styles.buttonText}>✅ Aceptar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.modalButtonSecondary]}
+              onPress={() => {
+                setNewProfilePhoto(null);
+                setIsConfirmingPhoto(false);
+                setShowEditProfileModal(true);
+              }}
+            >
+              <Text style={styles.buttonText}>❌ Volver a tomar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+
      <Modal visible={showEmployeeModal} transparent animationType="fade">
        <View style={styles.modalOverlay}>
          <View style={styles.modal}>
@@ -1135,6 +1255,10 @@ export default function App() {
                    <Text style={styles.employeeId}>{emp.employee_id} - {emp.rut}</Text>
                  </TouchableOpacity>
                  
+                 <TouchableOpacity onPress={() => openEditProfileModal(emp)}>
+                    <Text style={styles.editText}>✏️</Text>
+                 </TouchableOpacity>
+
                  <TouchableOpacity onPress={() => deleteEmployee(emp)}>
                    <Text style={styles.deleteText}>🗑️</Text>
                  </TouchableOpacity>
@@ -1250,6 +1374,56 @@ export default function App() {
          </View>
        </View>
      </Modal>
+
+    <Modal visible={showEditProfileModal} transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <View style={styles.modal}>
+          <Text style={styles.modalTitle}>✏️ Editar Perfil</Text>
+          {employeeToEdit && (
+            <View>
+              <Text style={styles.label}>Nombre: {employeeToEdit.name}</Text>
+              
+              <Text style={styles.label}>Nuevo RUT:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="RUT"
+                value={formatRut(editedRut)}
+                onChangeText={(text) => setEditedRut(text.replace(/[^0-9kK.-]/g, ''))}
+                maxLength={12}
+              />
+              
+              <Text style={styles.label}>Foto de Perfil:</Text>
+              {newProfilePhoto ? (
+                <View style={styles.photoPreviewContainer}>
+                  <Image source={{ uri: newProfilePhoto }} style={styles.photoPreview} />
+                  <Text style={styles.photoPreviewText}>Foto lista para guardar.</Text>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.takePhotoButton} onPress={startProfilePhotoCapture}>
+                  <Text style={styles.takePhotoText}>📸 Tomar nueva foto</Text>
+                </TouchableOpacity>
+              )}
+              
+              <View style={styles.modalButtons}>
+                <TouchableOpacity 
+                  style={[styles.modalButton, styles.entrada, isLoading && styles.modalButtonDisabled]}
+                  onPress={handleEditProfile}
+                  disabled={isLoading}
+                >
+                  <Text style={styles.buttonText}>✅ Guardar Cambios</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={[styles.modalButton, styles.modalButtonSecondary]}
+                  onPress={() => setShowEditProfileModal(false)}
+                >
+                  <Text style={styles.buttonText}>✕ Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+      </View>
+    </Modal>
    </SafeAreaView>
  );
 }
@@ -1594,6 +1768,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 5,
   },
+  editText: {
+    fontSize: 16,
+    padding: 5,
+    color: '#3498db'
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
@@ -1647,4 +1826,35 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 10,
   },
+  photoPreviewContainer: {
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  photoPreview: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
+  },
+  photoPreviewText: {
+    fontSize: 12,
+    color: '#27ae60',
+  },
+  takePhotoButton: {
+    backgroundColor: '#3498db',
+    padding: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  takePhotoText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  confirmPhotoPreview: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    marginBottom: 15,
+  }
 });

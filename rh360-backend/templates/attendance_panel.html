@@ -342,6 +342,7 @@
     </div>
 
     <script>
+        const API_BASE_URL = 'https://247f0bcafed1.ngrok-free.app';
         let selectedIds = new Set();
         let pendingDelete = null;
 
@@ -356,12 +357,12 @@
                 const employeeId = document.getElementById('employeeFilter').value;
                 const type = document.getElementById('typeFilter').value;
                 
-                let url = `/api/attendance-records/?days=${days}&limit=500`;
+                let url = `${API_BASE_URL}/api/attendance-records/?days=${days}&limit=500`;
                 if (employeeId) url += `&employee_id=${employeeId}`;
 
                 const [recordsRes, employeesRes] = await Promise.all([
                     fetch(url),
-                    fetch('/api/employees/')
+                    fetch(`${API_BASE_URL}/api/employees/`)
                 ]);
 
                 const recordsData = await recordsRes.json();
@@ -435,8 +436,9 @@
 
                 // Buscar la foto de perfil del empleado
                 const employee = employees.find(emp => emp.employee_id === record.employee_id);
+                // CORRECCIÓN: Concatenar la URL base
                 const profileImageHtml = employee && employee.profile_image
-                    ? `<img src="${employee.profile_image}" class="profile-img" alt="Foto">`
+                    ? `<img src="${API_BASE_URL}${employee.profile_image}" class="profile-img" alt="Foto">`
                     : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #fff;">👤</div>`;
                 
                 row.innerHTML = `

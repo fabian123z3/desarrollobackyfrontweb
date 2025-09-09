@@ -405,21 +405,29 @@ const App = () => {
 
     const openUpdateProfileModal = async () => {
         await fetchEmployees();
+        setCameraActive(true); // Activa la cámara en el modal de perfil
         setShowUpdateProfileModal(true);
     };
 
     const takeProfilePhoto = async () => {
         if (!videoRef.current) return;
-
-        const canvas = document.createElement('canvas');
-        canvas.width = videoRef.current.videoWidth;
-        canvas.height = videoRef.current.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        const imageData = canvas.toDataURL('image/jpeg');
-        setNewProfilePhoto(imageData);
-        setCameraActive(false);
-        showMessage('✅ Foto de perfil tomada y lista para guardar.', 'success');
+        setProcessing(true);
+        
+        try {
+            const canvas = document.createElement('canvas');
+            canvas.width = videoRef.current.videoWidth;
+            canvas.height = videoRef.current.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+            setNewProfilePhoto(imageData);
+            showMessage('✅ Foto de perfil tomada y lista para guardar.', 'success');
+        } catch (error) {
+            showMessage('❌ Error al tomar la foto.', 'error');
+            console.error(error);
+        } finally {
+            setProcessing(false);
+        }
     };
 
 
@@ -528,7 +536,7 @@ const App = () => {
                         )}
 
                         {/* Vista de cámara activa */}
-                        {cameraActive && (
+                        {cameraActive && (currentProcess === 'entrada' || currentProcess === 'salida') && (
                             <div className="camera-view" ref={cameraViewRef}>
                                 <div className="camera-header">
                                     <h2 className="camera-title">
@@ -553,6 +561,35 @@ const App = () => {
                                         playsInline
                                         muted
                                     />
+                                </div>
+                            </div>
+                        )}
+                        {cameraActive && showUpdateProfileModal && (
+                            <div className="camera-view">
+                                <div className="camera-header">
+                                    <h2 className="camera-title">Tomar Foto de Perfil</h2>
+                                    <p className="camera-subtitle">
+                                        Mira a la cámara, mantén una expresión neutral.
+                                    </p>
+                                </div>
+                                <div className="camera-container">
+                                    <video
+                                        ref={videoRef}
+                                        className="camera-video"
+                                        autoPlay
+                                        playsInline
+                                        muted
+                                    />
+                                </div>
+                                <div className="control-buttons" style={{ justifyContent: 'center' }}>
+                                    <button
+                                        onClick={takeProfilePhoto}
+                                        disabled={processing}
+                                        className="control-button button-capture"
+                                        style={{ width: 'auto' }}
+                                    >
+                                        {processing ? 'Procesando...' : '📸 Tomar Foto'}
+                                    </button>
                                 </div>
                             </div>
                         )}
@@ -648,7 +685,7 @@ const App = () => {
                                                 style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
                                             />
 
-                                            <label>Tomar Foto de Perfil:</label>
+                                            <label>Foto de Perfil:</label>
                                             {!newProfilePhoto && (
                                                 <div className="camera-container" style={{ position: 'relative', height: 'auto' }}>
                                                     <video
@@ -695,6 +732,7 @@ const App = () => {
                                                     setShowUpdateProfileModal(false);
                                                     setNewRut('');
                                                     setNewProfilePhoto(null);
+                                                    setCameraActive(false);
                                                 }}
                                                 className="modal-button"
                                                 style={{ backgroundColor: '#dc2626' }}
@@ -736,7 +774,7 @@ const App = () => {
                             </h2>
                             
                             {recognizedPerson.profileImage && (
-                                <img src={recognizedPerson.profileImage} alt="Foto de perfil" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem' }} />
+                                <img src={`${API_BASE_URL}${recognizedPerson.profileImage}`} alt="Foto de perfil" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem' }} />
                             )}
                             
                             <div className="modal-info">
