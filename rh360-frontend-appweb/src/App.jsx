@@ -6,6 +6,7 @@ import errorSound from './assets/falla.mp3';
 import asistenciaSound from './assets/asistencia.mp3';
 import intenteNuevamenteSound from './assets/intentenuevamente.mp3';
 import salida from './assets/salida.mp3';
+import contadorSound from './assets/contador.mp3';
 
 
 // Configuración del backend
@@ -14,6 +15,7 @@ const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
 const successAudio = new Audio(successSound);
+const contadorAudio = new Audio(contadorSound);
 
 const playAudioSequence = (firstAudio, secondAudio) => {
     firstAudio.play().catch(err => console.error(err)); // reproduce el primero
@@ -163,7 +165,8 @@ const App = () => {
 
         // Iniciar el contador inmediatamente al activar la cámara
         setCountdown(4);
-
+        // Reproducir sonido del contador
+        contadorAudio.play().catch(err => console.error(err));
         // Desplazar la pantalla hacia el área de la cámara
         setTimeout(() => {
             if (cameraViewRef.current) {
