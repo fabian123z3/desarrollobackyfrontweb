@@ -38,9 +38,15 @@ const App = () => {
     const [recognizedPerson, setRecognizedPerson] = useState(null);
     const [loading, setLoading] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
+    
+    // Nuevos estados para la estabilidad y el contador
+    const [isStable, setIsStable] = useState(false);
+    const [countdown, setCountdown] = useState(null);
 
     const videoRef = useRef(null);
+    const canvasRef = useRef(null); // Ref para el canvas de procesamiento
     const cameraViewRef = useRef(null);
+    const lastFrameData = useRef(null);
 
     // Actualizar hora cada segundo
     useEffect(() => {
@@ -72,10 +78,74 @@ const App = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Manejo de la cámara y auto-captura
+    // Lógica para detectar movimiento
+    useEffect(() => {
+        let stabilityCounter = 0;
+        let animationFrameId;
+
+        const checkMovement = () => {
+            if (!videoRef.current || !canvasRef.current || videoRef.current.paused || videoRef.current.ended) {
+                animationFrameId = requestAnimationFrame(checkMovement);
+                return;
+            }
+
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const currentFrameData = imageData.data;
+
+            if (lastFrameData.current) {
+                let diff = 0;
+                for (let i = 0; i < currentFrameData.length; i += 4) {
+                    diff += Math.abs(currentFrameData[i] - lastFrameData.current[i]);
+                    diff += Math.abs(currentFrameData[i + 1] - lastFrameData.current[i + 1]);
+                    diff += Math.abs(currentFrameData[i + 2] - lastFrameData.current[i + 2]);
+                }
+
+                const avgDiff = diff / (currentFrameData.length / 4);
+
+                // Si el promedio de la diferencia de píxeles es bajo, se considera estable
+                const stabilityThreshold = 5; 
+                if (avgDiff < stabilityThreshold) {
+                    stabilityCounter++;
+                } else {
+                    stabilityCounter = 0;
+                }
+            }
+
+            lastFrameData.current = currentFrameData.slice();
+
+            // Si se detecta estabilidad por 5 frames consecutivos, se considera estable
+            if (stabilityCounter >= 5) {
+                setIsStable(true);
+                cancelAnimationFrame(animationFrameId); // Detener el monitoreo de movimiento
+            } else {
+                animationFrameId = requestAnimationFrame(checkMovement);
+            }
+        };
+
+        if (cameraActive && !isStable) {
+            animationFrameId = requestAnimationFrame(checkMovement);
+        }
+
+        return () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+        };
+    }, [cameraActive, isStable]);
+
+
+    // Manejo de la cámara y auto-captura con contador
     useEffect(() => {
         let stream = null;
-        let captureTimeout = null;
+        let countdownInterval;
 
         const startCamera = async () => {
             if (!cameraActive || !videoRef.current) return;
@@ -92,11 +162,6 @@ const App = () => {
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
 
-                // Auto-captura 3 segundos después de que la cámara esté lista
-                captureTimeout = setTimeout(() => {
-                    capturePhoto();
-                }, 3000);
-
             } catch (error) {
                 console.error('Error accediendo a la cámara:', error);
                 showMessage('⚠️ No se pudo acceder a la cámara. Verifica los permisos.', 'error');
@@ -107,16 +172,35 @@ const App = () => {
         if (cameraActive) {
             startCamera();
         }
+        
+        // Si se detecta estabilidad, iniciar el contador
+        if (isStable && countdown === null) {
+            setCountdown(3);
+        }
+        
+        // Lógica del contador
+        if (countdown !== null && countdown > 0) {
+            countdownInterval = setInterval(() => {
+                setCountdown(prev => prev - 1);
+            }, 1000);
+        }
+        
+        // Cuando el contador llega a 0, tomar la foto
+        if (countdown === 0) {
+            capturePhoto();
+            setCountdown(null);
+            setIsStable(false);
+        }
 
         return () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
-            if (captureTimeout) {
-                clearTimeout(captureTimeout);
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
             }
         };
-    }, [cameraActive]);
+    }, [cameraActive, isStable, countdown]);
 
     // Funciones auxiliares
     const showMessage = (text, type) => {
@@ -132,12 +216,14 @@ const App = () => {
         setCameraActive(false);
         setProcessing(false);
         setCurrentProcess(null);
+        setIsStable(false);
+        setCountdown(null);
     };
 
     // Iniciar proceso de marcado
     const startAttendance = (type) => {
         if (systemStatus !== 'online' || processing || cameraActive) return;
-
+        
         setCurrentProcess(type);
         setCameraActive(true);
 
@@ -149,7 +235,7 @@ const App = () => {
         }, 100);
     };
 
-    // Capturar y procesar foto (ahora se llama automáticamente)
+    // Capturar y procesar foto
     const capturePhoto = async () => {
         if (!videoRef.current || processing) return;
 
@@ -216,34 +302,25 @@ const App = () => {
                 // Error en el reconocimiento
                 const errorMsg = data.message || 'Rostro no reconocido';
                 showMessage(`❌ ${errorMsg}`, 'error');
-
-                // Mantener cámara activa para reintento
+                
+                // Restablecer estados para reintentar
                 setTimeout(() => {
-                    if (cameraActive) {
-                        showMessage('🔄 Intenta nuevamente. Acércate más a la cámara.', 'warning');
-                    }
+                    resetProcess();
                 }, 3000);
             }
 
         } catch (error) {
             console.error('Error procesando foto:', error);
             showMessage('❌ Error de conexión. Intenta nuevamente.', 'error');
+            resetProcess();
         } finally {
             setProcessing(false);
             setLoading(false);
         }
     };
 
-    const cancelProcess = () => {
-        resetProcess();
-        showMessage('❌ Proceso cancelado', 'error');
-    };
-
     const closePersonInfo = () => {
         setRecognizedPerson(null);
-        // Auto-mostrar instrucciones después de cerrar
-        setTimeout(() => {
-        }, 500);
     };
 
     return (
@@ -346,8 +423,17 @@ const App = () => {
                                     Registrando {currentProcess?.toUpperCase()}
                                 </h2>
                                 <p className="camera-subtitle">
-                                    Mantén tu rostro en el área de la cámara.
+                                    {isStable && countdown !== null ? (
+                                        `Mantente inmóvil: `
+                                    ) : (
+                                        'Acércate y mantén el rostro en la cámara'
+                                    )}
                                 </p>
+                                {isStable && countdown !== null && (
+                                    <div className="countdown-display">
+                                        {countdown}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Contenedor de la cámara */}
@@ -359,6 +445,7 @@ const App = () => {
                                     playsInline
                                     muted
                                 />
+                                <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
                             </div>
                         </div>
                     )}
