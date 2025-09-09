@@ -9,6 +9,7 @@ urlpatterns = [
     path('employees/', views.get_employees, name='get_employees'),
     path('create-employee-basic/', views.create_employee_basic, name='create_employee_basic'),
     path('delete-employee/<uuid:employee_id>/', views.delete_employee, name='delete_employee'),
+    path('update-employee-profile/<uuid:employee_id>/', views.update_employee_profile, name='update_employee_profile'), # Agregado
     
     # Reconocimiento facial balanceado (5 fotos)
     path('register-face/', views.register_employee_face, name='register_employee_face'),

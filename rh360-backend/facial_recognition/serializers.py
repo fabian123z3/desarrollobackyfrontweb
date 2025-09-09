@@ -12,7 +12,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'department', 'position', 'is_active',
             'has_face_registered', 'face_quality_score', 'face_quality_display',
             'face_registration_date', 'face_variations_count',
-            'created_at', 'updated_at', 'attendance_count'
+            'created_at', 'updated_at', 'attendance_count',
+            'profile_image' # Agregado
         ]
         read_only_fields = ['id', 'created_at', 'updated_at', 'face_registration_date']
     

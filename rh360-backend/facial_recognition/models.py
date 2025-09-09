@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+import re
 
 class Employee(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -10,6 +11,9 @@ class Employee(models.Model):
     department = models.CharField(max_length=50)
     position = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
+    
+    # Campo para la foto de perfil
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     
     # Campos para reconocimiento facial avanzado
     face_encoding = models.TextField(blank=True, null=True)  # JSON con múltiples encodings

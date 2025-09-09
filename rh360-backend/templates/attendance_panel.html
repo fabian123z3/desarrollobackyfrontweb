@@ -219,6 +219,13 @@
             gap: 10px;
             justify-content: center;
         }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
         
         @media (max-width: 768px) {
             .container { 
@@ -309,7 +316,7 @@
                         <th width="40">
                             <input type="checkbox" id="selectAll" onchange="toggleAll()">
                         </th>
-                        <th>Fecha</th>
+                        <th>Foto</th> <th>Fecha</th>
                         <th>Empleado</th>
                         <th>Tipo</th>
                         <th>Ubicación</th>
@@ -369,7 +376,7 @@
 
                     updateStats(records, employeesData.employees);
                     updateEmployees(employeesData.employees);
-                    renderTable(records);
+                    renderTable(records, employeesData.employees); // Se pasa la lista de empleados
                     
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('dataTable').style.display = 'table';
@@ -405,53 +412,50 @@
             });
         }
 
-        function renderTable(records) {
-    // Eliminar duplicados basados en empleado, timestamp y tipo
-    const uniqueRecords = records.filter((record, index, self) => {
-        return index === self.findIndex(r => 
-            r.employee_name === record.employee_name &&
-            r.attendance_type === record.attendance_type &&
-            new Date(r.timestamp).getTime() === new Date(record.timestamp).getTime()
-        );
-    });
-    
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
+        function renderTable(records, employees) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
 
-    if (uniqueRecords.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: #6c757d;">📋 Sin registros</td></tr>';
-        return;
-    }
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 40px; color: #6c757d;">📋 Sin registros</td></tr>';
+                return;
+            }
 
-    uniqueRecords.forEach(record => {
-        const row = tbody.insertRow();
-        const date = new Date(record.timestamp);
-        
-        let method = 'Manual';
-        let badgeClass = 'badge-manual';
-        
-        if (record.face_confidence > 0) {
-            method = `Facial ${(record.face_confidence * 100).toFixed(0)}%`;
-            badgeClass = 'badge-facial';
+            records.forEach(record => {
+                const row = tbody.insertRow();
+                const date = new Date(record.timestamp);
+                
+                let method = 'Manual';
+                let badgeClass = 'badge-manual';
+                
+                if (record.face_confidence > 0) {
+                    method = `Facial ${(record.face_confidence * 100).toFixed(0)}%`;
+                    badgeClass = 'badge-facial';
+                }
+
+                // Buscar la foto de perfil del empleado
+                const employee = employees.find(emp => emp.employee_id === record.employee_id);
+                const profileImageHtml = employee && employee.profile_image
+                    ? `<img src="${employee.profile_image}" class="profile-img" alt="Foto">`
+                    : `<div style="width: 40px; height: 40px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 1.5em; color: #fff;">👤</div>`;
+                
+                row.innerHTML = `
+                    <td>
+                        <input type="checkbox" value="${record.id}" onchange="toggleSelect('${record.id}')">
+                    </td>
+                    <td>${profileImageHtml}</td> <td>${date.toLocaleDateString('es-CL')} ${date.toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</td>
+                    <td>${record.employee_name}</td>
+                    <td><span class="badge badge-${record.attendance_type}">${record.attendance_type.toUpperCase()}</span></td>
+                    <td>${record.address ? record.address.substring(0, 30) + '...' : '-'}</td>
+                    <td><span class="badge ${badgeClass}">${method}</span></td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteOne('${record.id}')">
+                            🗑️
+                        </button>
+                    </td>
+                `;
+            });
         }
-        
-        row.innerHTML = `
-            <td>
-                <input type="checkbox" value="${record.id}" onchange="toggleSelect('${record.id}')">
-            </td>
-            <td>${date.toLocaleDateString('es-CL')} ${date.toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</td>
-            <td>${record.employee_name}</td>
-            <td><span class="badge badge-${record.attendance_type}">${record.attendance_type.toUpperCase()}</span></td>
-            <td>${record.address ? record.address.substring(0, 30) + '...' : '-'}</td>
-            <td><span class="badge ${badgeClass}">${method}</span></td>
-            <td>
-                <button class="delete-btn" onclick="deleteOne('${record.id}')">
-                    🗑️
-                </button>
-            </td>
-        `;
-    });
-}
 
         function toggleAll() {
             const selectAll = document.getElementById('selectAll').checked;

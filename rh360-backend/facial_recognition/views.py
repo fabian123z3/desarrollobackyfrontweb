@@ -381,7 +381,8 @@ def verify_attendance_face(request):
                     'name': employee_obj.name,
                     'employee_id': employee_obj.employee_id,
                     'rut': employee_obj.rut,
-                    'department': employee_obj.department
+                    'department': employee_obj.department,
+                    'profile_image_url': employee_obj.profile_image.url if employee_obj.profile_image else None
                 },
                 'verification': {
                     'confidence': f'{best_confidence:.1%}',
@@ -413,7 +414,8 @@ def verify_attendance_face(request):
                 'name': employee_obj.name,
                 'employee_id': employee_obj.employee_id,
                 'rut': employee_obj.rut,
-                'department': employee_obj.department
+                'department': employee_obj.department,
+                'profile_image_url': employee_obj.profile_image.url if employee_obj.profile_image else None
             },
             'verification': {
                 'confidence': f'{best_confidence:.1%}',
@@ -548,7 +550,8 @@ def verify_qr(request):
                 'name': employee.name,
                 'employee_id': employee.employee_id,
                 'rut': employee.rut,
-                'department': employee.department
+                'department': employee.department,
+                'profile_image_url': employee.profile_image.url if employee.profile_image else None
             },
             'verification': {
                 'method': 'QR_CODE_VERIFIED',
@@ -604,7 +607,10 @@ def mark_attendance(request):
                 employee = Employee.objects.get(name__icontains=employee_name, is_active=True)
                 print(f"Búsqueda por nombre ({employee_name}): ✅")
             except Employee.DoesNotExist:
-                print(f"Búsqueda por nombre ({employee_name}): ❌")
+                return Response({
+                    'success': False,
+                    'message': 'No se encontró un empleado con el RUT o nombre proporcionado.'
+                }, status=400)
             except Employee.MultipleObjectsReturned:
                 return Response({
                     'success': False,
@@ -902,3 +908,57 @@ def delete_attendance(request, attendance_id):
 def attendance_panel(request):
     """Panel web"""
     return render(request, 'attendance_panel.html')
+    
+@api_view(['POST'])
+def update_employee_profile(request, employee_id):
+    """Actualizar perfil de empleado (incluye RUT y foto)"""
+    try:
+        employee = Employee.objects.get(id=employee_id)
+        data = request.data
+        
+        # Actualizar RUT si se proporciona
+        new_rut = data.get('rut')
+        if new_rut:
+            formatted_rut = format_rut_for_storage(new_rut)
+            if not validate_chilean_rut(formatted_rut):
+                return Response({
+                    'success': False,
+                    'message': f'RUT inválido: {new_rut}'
+                }, status=400)
+            
+            if Employee.objects.filter(rut=formatted_rut).exclude(id=employee.id).exists():
+                return Response({
+                    'success': False,
+                    'message': f'El RUT {formatted_rut} ya está en uso por otro empleado'
+                }, status=400)
+            
+            employee.rut = formatted_rut
+        
+        # Guardar la nueva foto de perfil si se proporciona
+        photo_data = data.get('photo_data')
+        if photo_data:
+            format, imgstr = photo_data.split(';base64,')
+            ext = format.split('/')[-1]
+            photo_name = f'profile_{employee_id}.{ext}'
+            
+            # Eliminar la foto anterior si existe
+            if employee.profile_image:
+                if default_storage.exists(employee.profile_image.name):
+                    default_storage.delete(employee.profile_image.name)
+                    
+            photo_file = ContentFile(base64.b64decode(imgstr), name=photo_name)
+            employee.profile_image.save(photo_name, photo_file, save=False)
+            
+        employee.save()
+        
+        serializer = EmployeeSerializer(employee)
+        return Response({
+            'success': True,
+            'message': f'✅ Perfil de {employee.name} actualizado',
+            'employee': serializer.data
+        })
+        
+    except Employee.DoesNotExist:
+        return Response({'success': False, 'message': 'Empleado no encontrado'}, status=404)
+    except Exception as e:
+        return Response({'success': False, 'message': f'Error: {str(e)}'}, status=500)

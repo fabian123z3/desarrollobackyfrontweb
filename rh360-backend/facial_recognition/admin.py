@@ -11,7 +11,7 @@ class EmployeeAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Información Básica', {
-            'fields': ('name', 'employee_id', 'email')
+            'fields': ('name', 'employee_id', 'email', 'profile_image') # Modificado
         }),
         ('Información Laboral', {
             'fields': ('department', 'position', 'is_active')
