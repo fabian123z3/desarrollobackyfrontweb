@@ -355,7 +355,7 @@ const App = () => {
                         <div className="camera-view" ref={cameraViewRef}>
                             <div className="camera-header">
                                 <h2 className="camera-title">
-                                    Registrando {currentProcess?.toUpperCase()}
+                                    Registrando {currentProcess?.charAt(0).toUpperCase() + currentProcess?.slice(1)}
                                 </h2>
                                 <p className="camera-subtitle">
                                    Por favor, mira a la cámara y mantente quieto.
