@@ -17,6 +17,8 @@ body {
 /* Contenedor principal */
 .min-h-screen {
   min-height: 100vh;
+  /* Asegura que no haya scroll vertical */
+  overflow: hidden;
 }
 
 .bg-gradient-to-br {
@@ -143,81 +145,6 @@ body {
   flex: 1;
 }
 
-.sidebar {
-  width: 20rem;
-  background-color: rgba(30, 41, 59, 0.5);
-  padding: 1.5rem;
-  border-right: 1px solid #475569;
-}
-
-.sidebar-section {
-  background-color: rgba(55, 65, 81, 0.6);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.sidebar-title {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: white;
-  margin-bottom: 1rem;
-}
-
-.instruction-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.instruction-number {
-  width: 2rem;
-  height: 2rem;
-  background-color: #2563eb;
-  border-radius: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 0.25rem;
-}
-
-.instruction-number span {
-  color: white;
-  font-size: 0.875rem;
-  font-weight: bold;
-}
-
-.instruction-title {
-  font-weight: 600;
-  color: white;
-}
-
-.instruction-desc {
-  color: #cbd5e1;
-  font-size: 0.875rem;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-  color: #cbd5e1;
-}
-
-.feature-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  background-color: #10b981;
-  border-radius: 50%;
-}
-
-.feature-text {
-  font-size: 0.875rem;
-}
-
 /* Área principal */
 .main-area {
   flex: 1;
@@ -342,18 +269,21 @@ body {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: 1rem;
   padding: 2rem;
+  flex: 1; /* Esto permite que ocupe el espacio disponible */
+  display: flex;
+  flex-direction: column;
 }
 
 .camera-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .camera-title {
   font-size: 1.875rem;
   font-weight: bold;
   color: white;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .camera-subtitle {
@@ -366,9 +296,11 @@ body {
   background-color: black;
   border-radius: 1rem;
   overflow: hidden;
+  /* Relación de aspecto para la cámara */
   aspect-ratio: 16/9;
-  max-width: 64rem;
-  margin: 0 auto 2rem auto;
+  width: 100%;
+  margin: 0 auto 1.5rem auto;
+  flex: 1;
 }
 
 .camera-video {
@@ -386,8 +318,9 @@ body {
 }
 
 .camera-circle {
-  width: 16rem;
-  height: 16rem;
+  /* Nuevo tamaño más grande y adaptable */
+  width: 90%;
+  height: 90%;
   border: 4px solid white;
   border-radius: 50%;
   opacity: 0.8;
@@ -490,33 +423,6 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/* Footer */
-.footer {
-  background-color: rgba(30, 41, 59, 0.9);
-  color: #cbd5e1;
-  border-top: 1px solid #475569;
-}
-
-.footer-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
-}
-
-.footer-content {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2rem;
-  font-size: 0.875rem;
-}
-
-.footer-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 /* Mensajes de estado */
@@ -739,15 +645,14 @@ body {
 @media (max-width: 1024px) {
   .main-container {
     flex-direction: column;
-  }
-  
-  .sidebar {
-    width: 100%;
-    order: 2;
+    height: 100vh;
   }
   
   .main-area {
     order: 1;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    flex: 1; /* Agregado para ocupar el espacio restante */
   }
   
   .buttons-grid {
@@ -757,11 +662,6 @@ body {
   
   .control-buttons {
     flex-direction: column;
-  }
-  
-  .footer-content {
-    flex-direction: column;
-    gap: 1rem;
   }
 }
 
@@ -775,18 +675,35 @@ body {
     flex-direction: column;
     gap: 1rem;
   }
+
+  .main-area {
+    padding: 1rem;
+    flex: 1; /* Agregado para ocupar el espacio restante */
+  }
   
   .main-card {
-    padding: 2rem;
+    padding: 1.5rem;
   }
   
   .main-title {
     font-size: 2rem;
   }
+
+  .camera-view {
+    padding: 1rem;
+    flex: 1;
+  }
   
+  .camera-container {
+    max-width: 100%;
+    margin-bottom: 1rem;
+    flex: 1;
+  }
+
   .camera-circle {
-    width: 12rem;
-    height: 12rem;
+    /* Nuevo valor basado en la imagen */
+    width: 90%;
+    height: 90%;
   }
   
   .modal {

@@ -1,10 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
+import logo from "./assets/logo.png"
+import successSound from './assets/correcto.mp3'; 
+import errorSound from './assets/falla.mp3'; 
+import asistenciaSound from './assets/asistencia.mp3'; 
+import intenteNuevamenteSound from './assets/intentenuevamente.mp3'; 
 
 // Configuración del backend
 const API_BASE_URL = 'https://2699959d4052.ngrok-free.app/api';
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
+const successAudio = new Audio(successSound);
+
+const playAudioSequence = (firstAudio, secondAudio) => {
+    firstAudio.play().catch(err => console.error(err)); // reproduce el primero
+    firstAudio.onended = () => { 
+        secondAudio.play().catch(err => console.error(err)); // reproduce el segundo
+    };
+};
+
+const errorAudio = new Audio(errorSound);
+const asistenciaAudio = new Audio(asistenciaSound); 
+const intenteNuevamenteAudio = new Audio(intenteNuevamenteSound);
 
 const App = () => {
     // Estados principales
@@ -19,6 +36,7 @@ const App = () => {
     const [currentTime, setCurrentTime] = useState(new Date());
 
     const videoRef = useRef(null);
+    const cameraViewRef = useRef(null);
 
     // Actualizar hora cada segundo
     useEffect(() => {
@@ -121,6 +139,13 @@ const App = () => {
         setCurrentProcess(type);
         setCameraActive(true);
         showMessage(`📸 Mira a la cámara y presiona el botón azul para marcar tu ${type.toUpperCase()}`, 'success');
+
+        // Desplazar la pantalla hacia el área de la cámara
+        setTimeout(() => {
+            if (cameraViewRef.current) {
+                cameraViewRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 100);
     };
 
     // Capturar y procesar foto
@@ -134,13 +159,13 @@ const App = () => {
             // Crear canvas para capturar la imagen
             const canvas = document.createElement('canvas');
             const video = videoRef.current;
-            
+
             canvas.width = Math.min(video.videoWidth, 1280);
             canvas.height = Math.min(video.videoHeight, 720);
-            
+
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
             // Convertir a base64
             const imageData = canvas.toDataURL('image/jpeg', 0.85);
 
@@ -163,6 +188,9 @@ const App = () => {
             const data = await response.json();
 
             if (response.ok && (data.success || data.duplicate_found)) {
+                // Reproduce el sonido de éxito
+                playAudioSequence(successAudio, asistenciaAudio);
+                
                 // Reconocimiento exitoso
                 const employee = data.employee;
                 if (employee) {
@@ -176,13 +204,16 @@ const App = () => {
                         isDuplicate: data.duplicate_found
                     });
                 }
-                
+
                 resetProcess();
             } else {
+                // Reproduce el sonido de error
+                playAudioSequence(errorAudio, intenteNuevamenteAudio);
+
                 // Error en el reconocimiento
                 const errorMsg = data.message || 'Rostro no reconocido';
                 showMessage(`❌ ${errorMsg}`, 'error');
-                
+
                 // Mantener cámara activa para reintento
                 setTimeout(() => {
                     if (cameraActive) {
@@ -221,7 +252,7 @@ const App = () => {
                     <div className="header-content">
                         <div className="header-left">
                             <div className="logo">
-                                <span>🏢</span>
+                                <img src={logo} width="64px" alt="Logo de la empresa" />
                             </div>
                             <div>
                                 <h1 className="header-title">
@@ -234,23 +265,22 @@ const App = () => {
                         </div>
 
                         <div className="header-right">
-                            <div className={`status-badge ${
-                                systemStatus === 'online' ? 'status-online' : 
+                            <div className={`status-badge ${systemStatus === 'online' ? 'status-online' :
                                 systemStatus === 'offline' ? 'status-offline' : 'status-checking'
-                            }`}>
-                                {systemStatus === 'online' ? '● SISTEMA ACTIVO' : 
-                                 systemStatus === 'offline' ? '● DESCONECTADO' : '● VERIFICANDO'}
+                                }`}>
+                                {systemStatus === 'online' ? '● SISTEMA ACTIVO' :
+                                    systemStatus === 'offline' ? '● DESCONECTADO' : '● VERIFICANDO'}
                             </div>
-                            
+
                             <div className="time-display">
                                 <div className="time-clock">
-                                    {currentTime.toLocaleTimeString('es-CL', { 
-                                        hour: '2-digit', 
-                                        minute: '2-digit' 
+                                    {currentTime.toLocaleTimeString('es-CL', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
                                     })}
                                 </div>
                                 <div className="time-date">
-                                    {currentTime.toLocaleDateString('es-CL', { 
+                                    {currentTime.toLocaleDateString('es-CL', {
                                         day: '2-digit',
                                         month: '2-digit',
                                         year: 'numeric'
@@ -264,45 +294,6 @@ const App = () => {
 
             {/* Contenido principal */}
             <div className="main-container">
-                {/* Panel lateral izquierdo - Información */}
-                <div className="sidebar">
-                    <div className="sidebar-section">
-                        <h2 className="sidebar-title">INSTRUCCIONES</h2>
-                        <div>
-                            <div className="instruction-item">
-                                <div className="instruction-number">
-                                    <span>1</span>
-                                </div>
-                                <div>
-                                    <div className="instruction-title">Captura</div>
-                                    <div className="instruction-desc">Presiona el botón TOMAR FOTO</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="sidebar-section">
-                        <h3 className="sidebar-title">CARACTERÍSTICAS</h3>
-                        <div>
-                            <div className="feature-item">
-                                <div className="feature-dot"></div>
-                                <span className="feature-text">Reconocimiento facial avanzado</span>
-                            </div>
-                            <div className="feature-item">
-                                <div className="feature-dot"></div>
-                                <span className="feature-text">Registro automático</span>
-                            </div>
-                            <div className="feature-item">
-                                <div className="feature-dot"></div>
-                                <span className="feature-text">Seguridad empresarial</span>
-                            </div>
-                            <div className="feature-item">
-                                <div className="feature-dot"></div>
-                                <span className="feature-text">Detección de duplicados</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Área principal de interacción */}
                 <div className="main-area">
@@ -336,7 +327,7 @@ const App = () => {
                                                 Registrar llegada
                                             </div>
                                         </button>
-                                        
+
                                         <button
                                             onClick={() => startAttendance('salida')}
                                             disabled={systemStatus !== 'online'}
@@ -355,7 +346,7 @@ const App = () => {
 
                         {/* Vista de cámara activa */}
                         {cameraActive && (
-                            <div className="camera-view">
+                            <div className="camera-view" ref={cameraViewRef}>
                                 <div className="camera-header">
                                     <h2 className="camera-title">
                                         REGISTRANDO {currentProcess?.toUpperCase()}
@@ -374,12 +365,12 @@ const App = () => {
                                         playsInline
                                         muted
                                     />
-                                    
+
                                     {/* Overlay con círculo guía */}
                                     <div className="camera-overlay">
                                         <div className="camera-circle"></div>
                                     </div>
-                                    
+
                                     {/* Instrucciones */}
                                     <div className="camera-instructions">
                                         <div className="camera-instruction-box">
@@ -388,7 +379,7 @@ const App = () => {
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     {/* Contador */}
                                     <div className="camera-timer">
                                         <div className="camera-timer-box">
@@ -415,7 +406,7 @@ const App = () => {
                                             <>📷 TOMAR FOTO</>
                                         )}
                                     </button>
-                                    
+
                                     <button
                                         onClick={cancelProcess}
                                         disabled={processing}
@@ -430,35 +421,14 @@ const App = () => {
                         {/* Mensaje de estado */}
                         {message && (
                             <div className="message-container">
-                                <div className={`message ${
-                                    messageType === 'success' ? 'message-success' :
+                                <div className={`message ${messageType === 'success' ? 'message-success' :
                                     messageType === 'error' ? 'message-error' :
                                     'message-warning'
-                                }`}>
+                                    }`}>
                                     {message}
                                 </div>
                             </div>
                         )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Footer corporativo */}
-            <div className="footer">
-                <div className="footer-container">
-                    <div className="footer-content">
-                        <div className="footer-item">
-                            <span>🔒</span>
-                            <span>Sistema Seguro</span>
-                        </div>
-                        <div className="footer-item">
-                            <span>⚡</span>
-                            <span>Procesamiento Rápido</span>
-                        </div>
-                        <div className="footer-item">
-                            <span>📊</span>
-                            <span>Registro Automático</span>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -471,16 +441,16 @@ const App = () => {
                             <div className="modal-icon">
                                 {recognizedPerson.isDuplicate ? '⚠️' : '✅'}
                             </div>
-                            
+
                             <h2 className={`modal-title ${recognizedPerson.isDuplicate ? 'modal-title-warning' : 'modal-title-success'}`}>
                                 {recognizedPerson.isDuplicate ? 'REGISTRO DUPLICADO' : 'REGISTRO EXITOSO'}
                             </h2>
-                            
+
                             <div className="modal-info">
                                 <div className="modal-name">
                                     {recognizedPerson.name}
                                 </div>
-                                
+
                                 <div className="modal-details">
                                     <div className="modal-detail-row">
                                         <span className="modal-detail-label">ID Empleado:</span>
@@ -496,15 +466,14 @@ const App = () => {
                                     </div>
                                     <div className="modal-detail-row">
                                         <span className="modal-detail-label">Acción:</span>
-                                        <span className={`modal-detail-badge ${
-                                            recognizedPerson.type === 'entrada' ? 'badge-entrada' : 'badge-salida'
-                                        }`}>
+                                        <span className={`modal-detail-badge ${recognizedPerson.type === 'entrada' ? 'badge-entrada' : 'badge-salida'
+                                            }`}>
                                             {recognizedPerson.type?.toUpperCase()}
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="modal-extra-info">
                                 <div className="modal-confidence">
                                     Confianza: {recognizedPerson.confidence}
@@ -513,7 +482,7 @@ const App = () => {
                                     {new Date().toLocaleString('es-CL')}
                                 </div>
                             </div>
-                            
+
                             {recognizedPerson.isDuplicate && (
                                 <div className="modal-warning-box">
                                     <div className="modal-warning-text">
@@ -521,7 +490,7 @@ const App = () => {
                                     </div>
                                 </div>
                             )}
-                            
+
                             <button
                                 onClick={closePersonInfo}
                                 className="modal-button"
@@ -549,4 +518,4 @@ const App = () => {
     );
 };
 
-export default App
+export default App;
