@@ -54,7 +54,6 @@ body {
   color: white;
   border-bottom: 1px solid #475569;
   padding: 0.5rem 0;
-  flex-shrink: 0; /* No se comprime */
 }
 
 .header-container {
@@ -150,7 +149,6 @@ body {
 .main-container {
   display: flex;
   flex: 1;
-  height: calc(100vh - 60px); /* Descontar altura del header */
 }
 
 /* Área principal */
@@ -165,13 +163,11 @@ body {
 .content-container {
   width: 100%;
   max-width: 64rem;
-  height: 100%;
 }
 
 /* Vista principal */
 .main-view {
   text-align: center;
-  height: 100%;
 }
 
 .main-card {
@@ -179,15 +175,10 @@ body {
   border-radius: 1rem;
   padding: 3rem;
   margin-bottom: 2rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .main-header {
   margin-bottom: 3rem;
-  flex-shrink: 0;
 }
 
 .main-title {
@@ -206,31 +197,30 @@ body {
 .buttons-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem; /* MÁS GAP */
+  gap: 2rem;
   max-width: 48rem;
   margin: 0 auto;
-  flex: 1;
 }
 
 .main-button {
-  font-weight: bold;
-  padding: 6rem 3rem; /* PADDING GIGANTE */
-  border-radius: 2rem; /* MÁS REDONDEADO */
-  transition: all 0.2s;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* SOMBRA MÁS GRANDE */
-  min-height: 24rem; /* ALTURA GIGANTE */
-  border: none;
-  cursor: pointer;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+ font-weight: bold;
+ padding: 8rem 4rem;
+ border-radius: 3rem;
+ transition: all 0.2s;
+ box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+ min-height: 30rem;
+ border: none;
+ cursor: pointer;
+ color: white;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
 }
 
 .main-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .main-button:disabled {
@@ -256,38 +246,35 @@ body {
 }
 
 .button-icon {
-  font-size: 6rem; /* ÍCONOS GIGANTES */
-  margin-bottom: 2.5rem;
-  display: block;
+ font-size: 12rem;
+ margin-bottom: 4rem;
+ display: block;
 }
 
 .button-title {
-  font-size: 3rem; /* TÍTULOS GIGANTES */
-  font-weight: bold;
-  margin-bottom: 1.5rem;
+ font-size: 6rem;
+ font-weight: bold;
+ margin-bottom: 3rem;
 }
 
 .button-desc {
-  font-size: 1.8rem; /* DESCRIPCIÓN GRANDE */
-  opacity: 0.9;
+ font-size: 3rem;
+ opacity: 0.9;
 }
 
-/* Vista de cámara - MEJORADA PARA MÓVILES */
+/* Vista de cámara */
 .camera-view {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 2rem;
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  max-height: calc(100vh - 60px); /* Descontar header */
 }
 
 .camera-header {
   text-align: center;
   margin-bottom: 1rem;
-  flex-shrink: 0;
 }
 
 .camera-title {
@@ -307,10 +294,10 @@ body {
   background-color: black;
   border-radius: 1rem;
   overflow: hidden;
+  aspect-ratio: 16/9;
   width: 100%;
-  margin: 0 auto 1rem auto;
-  flex: 1; /* Ocupa todo el espacio disponible */
-  min-height: 300px; /* Altura mínima */
+  margin: 0 auto 1.5rem auto;
+  flex: 1;
 }
 
 .camera-video {
@@ -328,8 +315,8 @@ body {
 }
 
 .camera-circle {
-  width: 80%;
-  height: 80%;
+  width: 90%;
+  height: 90%;
   border: 4px solid white;
   border-radius: 50%;
   opacity: 0.8;
@@ -337,65 +324,64 @@ body {
 
 .camera-instructions {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
-  right: 1rem;
+  top: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
 }
 
 .camera-instruction-box {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.6);
   color: white;
   text-align: center;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
 }
 
 .camera-instruction-text {
-  font-size: 1rem;
+  font-size: 1.125rem;
   font-weight: 600;
 }
 
 .camera-timer {
   position: absolute;
-  bottom: 1rem;
-  left: 1rem;
-  right: 1rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
 }
 
 .camera-timer-box {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.6);
   color: white;
   text-align: center;
-  padding: 0.75rem 1rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
 }
 
 .camera-timer-text {
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
-/* Botones de control - MEJORADOS PARA MÓVILES */
+/* Botones de control */
 .control-buttons {
   display: flex;
-  gap: 1.5rem;
-  flex-shrink: 0;
-  margin-top: 1rem;
+  gap: 2.4rem;
+  max-width: 70rem;
+  margin: 0 auto;
+  font-size: 1.2em;
 }
 
 .control-button {
   border: none;
   font-weight: bold;
-  padding: 2rem 2rem; /* MÁS PADDING POR DEFECTO */
-  border-radius: 1rem; /* MÁS REDONDEADO */
-  font-size: 1.4rem; /* MÁS GRANDE POR DEFECTO */
+  padding: 1.5rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 1.25rem;
   transition: all 0.2s;
   cursor: pointer;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 70px; /* MÁS ALTO POR DEFECTO */
-  font-weight: 800; /* MÁS NEGRITA */
 }
 
 .control-button:disabled {
@@ -404,19 +390,15 @@ body {
 }
 
 .button-capture {
-  flex: 2;
+  flex: 1;
   background-color: #2563eb;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25); /* SOMBRA PARA DESTACAR */
 }
 
 .button-capture:hover:not(:disabled) {
   background-color: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
 }
 
 .button-cancel {
-  flex: 1;
   background-color: #475569;
 }
 
@@ -656,208 +638,7 @@ body {
   color: #cbd5e1;
 }
 
-/* ===== RESPONSIVE MÓVILES Y TABLETS ===== */
-
-/* Móviles y tablets en orientación portrait */
-@media (max-width: 1024px) and (orientation: portrait) {
-  /* Header más compacto */
-  .header {
-    padding: 0.25rem 0;
-  }
-  
-  .header-container {
-    padding: 0 0.75rem;
-  }
-  
-  .header-content-distributed {
-    gap: 0.5rem;
-    min-height: 50px;
-  }
-  
-  .header-left img {
-    height: 40px;
-    max-width: 90px;
-  }
-  
-  .header-right img {
-    height: 32px;
-    max-width: 60px;
-  }
-  
-  .status-badge {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.6rem;
-  }
-
-  /* Main container ocupa toda la altura */
-  .main-container {
-    flex-direction: column;
-    height: calc(100vh - 50px); /* Descontar header compacto */
-  }
-  
-  .main-area {
-    order: 1;
-    padding: 0.5rem;
-    flex: 1;
-    height: 100%;
-  }
-  
-  .content-container {
-    height: 100%;
-  }
-  
-  /* Vista principal móvil */
-  .main-view {
-    height: 100%;
-  }
-  
-  .main-card {
-    padding: 1rem;
-    margin-bottom: 0;
-    height: 100%;
-  }
-  
-  .main-title {
-    font-size: 1.8rem;
-    margin-bottom: 0.5rem;
-  }
-  
-  .main-header {
-    margin-bottom: 1.5rem;
-  }
-
-  /* Tiempo más compacto */
-  .time-clock {
-    font-size: 2.5rem;
-  }
-  
-  .time-date {
-    font-size: 1.5rem;
-  }
-  
-  /* Botones principales en móvil */
-  .buttons-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    flex: 1;
-    max-width: none;
-  }
-  
-  .main-button {
-    padding: 2rem 1rem;
-    min-height: 0;
-    height: 100%;
-    border-radius: 1rem;
-  }
-  
-  .button-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-  
-  .button-title {
-    font-size: 1.5rem;
-    margin-bottom: 0.75rem;
-  }
-  
-  .button-desc {
-    font-size: 1rem;
-  }
-
-  /* Vista de cámara PANTALLA COMPLETA en móvil */
-  .camera-view {
-    padding: 0.75rem;
-    height: 100%;
-    border-radius: 0.75rem;
-  }
-  
-  .camera-header {
-    margin-bottom: 0.75rem;
-  }
-  
-  .camera-title {
-    font-size: 1.4rem;
-    margin-bottom: 0.25rem;
-  }
-  
-  .camera-subtitle {
-    font-size: 1rem;
-  }
-  
-  .camera-container {
-    flex: 1;
-    min-height: calc(100vh - 200px); /* Máximo espacio disponible */
-    margin-bottom: 0.75rem;
-  }
-
-  .camera-circle {
-    width: 85%;
-    height: 85%;
-    border-width: 3px;
-  }
-  
-  .camera-instructions {
-    top: 0.75rem;
-    left: 0.75rem;
-    right: 0.75rem;
-  }
-  
-  .camera-instruction-text {
-    font-size: 0.9rem;
-  }
-  
-  .camera-timer {
-    bottom: 0.75rem;
-    left: 0.75rem;
-    right: 0.75rem;
-  }
-  
-  .camera-timer-text {
-    font-size: 0.8rem;
-  }
-  
-  /* Botones de control móvil */
-  .control-buttons {
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 0.75rem;
-  }
-  
-  .control-button {
-    padding: 1.25rem 1rem;
-    font-size: 1.1rem;
-    min-height: 55px;
-    border-radius: 0.75rem;
-  }
-  
-  .button-capture {
-    flex: none;
-  }
-  
-  .button-cancel {
-    flex: none;
-  }
-  
-  /* Modal responsive */
-  .modal {
-    margin: 1rem;
-    padding: 1.5rem;
-  }
-  
-  .modal-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-  
-  .modal-title {
-    font-size: 1.3rem;
-    margin-bottom: 1rem;
-  }
-  
-  .modal-name {
-    font-size: 1.3rem;
-  }
-}
+/* Responsive breakpoints */
 
 /* Tablets grandes y desktop pequeño */
 @media (min-width: 768px) and (max-width: 1200px) {
@@ -879,14 +660,6 @@ body {
   .status-badge {
     font-size: 0.85rem;
     padding: 0.5rem 1rem;
-  }
-
-  .main-container {
-    height: calc(100vh - 70px);
-  }
-
-  .camera-container {
-    min-height: calc(100vh - 250px);
   }
 }
 
@@ -915,39 +688,93 @@ body {
     font-size: 0.9rem;
     padding: 0.6rem 1.2rem;
   }
+}
 
+/* Responsive general */
+@media (max-width: 1024px) {
   .main-container {
-    height: calc(100vh - 80px);
+    flex-direction: column;
+    height: 100vh;
   }
-
-  .buttons-grid {
-    gap: 2rem;
-    max-width: none;
+  
+  .main-area {
+    order: 1;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: stretch;
+  }
+  
+  .buttons-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .control-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Móviles y tablets pequeñas */
+@media (max-width: 767px) {
+  .header {
+    padding: 0.25rem 0;
+  }
+  
+  .header-container {
+    padding: 0 0.75rem;
+  }
+  
+  .header-content-distributed {
+    gap: 0.5rem;
+    min-height: 50px;
+  }
+  
+  .header-left img {
+    height: 40px;
+    max-width: 90px;
+  }
+  
+  .header-right img {
+    height: 32px;
+    max-width: 60px;
+  }
+  
+  .status-badge {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
   }
 
-  .main-button {
-    padding: 2rem;
-    height: 100%;
-    min-height: 300px;
-    border-radius: 1.5rem;
+  .main-area {
+    padding: 1rem;
+    flex: 1;
+  }
+  
+  .main-card {
+    padding: 1.5rem;
+  }
+  
+  .main-title {
+    font-size: 2rem;
   }
 
-  .button-icon {
-    font-size: 4rem;
-    margin-bottom: 2rem;
+  .camera-view {
+    padding: 1rem;
+    flex: 1;
   }
-
-  .button-title {
-    font-size: 2.5rem;
+  
+  .camera-container {
+    max-width: 100%;
     margin-bottom: 1rem;
+    flex: 1;
   }
 
-  .button-desc {
-    font-size: 1.4rem;
+  .camera-circle {
+    width: 90%;
+    height: 90%;
+  }
+  
+  .modal {
+    margin: 1rem;
   }
 }
 
@@ -972,44 +799,207 @@ body {
     font-size: 0.65rem;
     padding: 0.25rem 0.5rem;
   }
+}
 
-  .main-container {
-    height: calc(100vh - 45px);
+/* Para orientación vertical (portrait) */
+@media (orientation: portrait) {
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
-
-  .camera-view {
-    padding: 0.5rem;
-  }
-
-  .camera-container {
-    min-height: calc(100vh - 180px);
-  }
-
-  .control-button {
-    padding: 1rem;
-    font-size: 1rem;
-    min-height: 50px;
+  
+  .header-content-distributed {
+    min-height: 55px;
   }
 }
 
-/* Landscape en móviles */
-@media (max-width: 1024px) and (orientation: landscape) {
+/* Para pantallas muy anchas (landscape extremo) */
+@media (min-width: 1400px) {
+  .header-container {
+    max-width: 1400px;
+    padding: 0 3rem;
+  }
+  
+  .header-content-distributed {
+    gap: 4rem;
+  }
+}
+/* Botones más grandes para desktop - Agregar/reemplazar en tu CSS */
+
+@media (min-width: 1024px) {
   .main-container {
-    flex-direction: row;
-    height: calc(100vh - 50px);
+    height: calc(100vh - 70px);
+    overflow: hidden;
+  }
+
+  .main-area {
+    padding: 1.5rem 2rem;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .content-container {
+    max-width: 1200px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .main-card {
+    padding: 2rem;
+    margin-bottom: 0;
+    background-color: rgba(55, 65, 81, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .main-header {
+    margin-bottom: 2rem;
+    flex-shrink: 0; /* No se comprime */
+  }
+
+  .main-title {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Tiempo compacto */
+  .time-display div {
+    gap: 2rem !important;
+  }
+
+  .time-clock {
+    font-size: 2.5rem;
+  }
+
+  .time-date {
+    font-size: 1.6rem;
+  }
+
+  /* Botones que ocupan el máximo espacio disponible */
+  .buttons-grid {
+    gap: 2rem;
+    max-width: none; /* Sin límite de ancho */
+    margin: 0;
+    flex: 1; /* Ocupa todo el espacio restante */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch; /* Botones se estiran verticalmente */
+  }
+
+  .main-button {
+    padding: 2rem;
+    height: 100%; /* Altura completa disponible */
+    min-height: 300px; /* Mínimo generoso */
+    border-radius: 1.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .main-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  }
+
+  .button-icon {
+    font-size: 4rem; /* Iconos más grandes */
+    margin-bottom: 2rem;
+    flex-shrink: 0;
+  }
+
+  .button-title {
+    font-size: 2.5rem; /* Títulos más grandes */
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+  }
+
+  .button-desc {
+    font-size: 1.4rem; /* Descripción más grande */
+    flex-shrink: 0;
+  }
+}
+
+/* Para pantallas medianas (1200px - 1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .buttons-grid {
+    gap: 2.5rem;
+  }
+
+  .main-button {
+    min-height: 350px;
+  }
+
+  .button-icon {
+    font-size: 4.5rem;
+  }
+
+  .button-title {
+    font-size: 2.8rem;
+  }
+
+  .button-desc {
+    font-size: 1.5rem;
+  }
+}
+
+/* Para pantallas grandes (1600px+) */
+@media (min-width: 1600px) {
+  .main-area {
+    padding: 2rem 4rem;
   }
 
   .buttons-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: 3rem;
   }
 
-  .camera-container {
-    min-height: calc(100vh - 150px);
+  .main-button {
+    min-height: 400px;
+    padding: 3rem;
   }
 
-  .control-buttons {
-    flex-direction: row;
-    gap: 1rem;
+  .button-icon {
+    font-size: 5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .button-title {
+    font-size: 3.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .button-desc {
+    font-size: 1.8rem;
+  }
+}
+
+/* Pantallas extra grandes (1920px+) */
+@media (min-width: 1920px) {
+  .main-button {
+    min-height: 450px;
+    padding: 4rem;
+  }
+
+  .button-icon {
+    font-size: 6rem;
+    margin-bottom: 3rem;
+  }
+
+  .button-title {
+    font-size: 3.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .button-desc {
+    font-size: 2rem;
   }
 }
