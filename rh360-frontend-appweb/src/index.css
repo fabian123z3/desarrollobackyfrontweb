@@ -128,7 +128,7 @@ body {
 }
 
 .time-display {
- text-align: right;
+ text-align: center;
 }
 
 .time-clock {
@@ -137,6 +137,7 @@ body {
  font-weight: bold;
  text-align: center;
  color: white;
+ margin-bottom: 0.5rem;
 }
 
 .time-date {
@@ -563,7 +564,8 @@ body {
 }
 
 .badge-salida {
- background-color: #dc2626;
+ background-color: #f8d7da;
+ color: #721c24;
 }
 
 .modal-extra-info {
