@@ -72,9 +72,10 @@ const App = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Manejo de la cámara
+    // Manejo de la cámara y auto-captura
     useEffect(() => {
         let stream = null;
+        let captureTimeout = null;
 
         const startCamera = async () => {
             if (!cameraActive || !videoRef.current) return;
@@ -82,14 +83,20 @@ const App = () => {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        width: { ideal: 1280, max: 1920 },
-                        height: { ideal: 720, max: 1080 },
+                        width: { ideal: 1920, max: 1920 },
+                        height: { ideal: 1080, max: 1080 },
                         facingMode: 'user'
                     }
                 });
 
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
+
+                // Auto-captura 3 segundos después de que la cámara esté lista
+                captureTimeout = setTimeout(() => {
+                    capturePhoto();
+                }, 3000);
+
             } catch (error) {
                 console.error('Error accediendo a la cámara:', error);
                 showMessage('⚠️ No se pudo acceder a la cámara. Verifica los permisos.', 'error');
@@ -105,20 +112,11 @@ const App = () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
+            if (captureTimeout) {
+                clearTimeout(captureTimeout);
+            }
         };
     }, [cameraActive]);
-
-    // Auto-reset después de inactividad
-    useEffect(() => {
-        let timeout;
-        if (cameraActive && !processing) {
-            timeout = setTimeout(() => {
-                resetProcess();
-                showMessage('⏰ Tiempo agotado. Intenta nuevamente.', 'warning');
-            }, 30000); // 30 segundos
-        }
-        return () => clearTimeout(timeout);
-    }, [cameraActive, processing]);
 
     // Funciones auxiliares
     const showMessage = (text, type) => {
@@ -151,7 +149,7 @@ const App = () => {
         }, 100);
     };
 
-    // Capturar y procesar foto
+    // Capturar y procesar foto (ahora se llama automáticamente)
     const capturePhoto = async () => {
         if (!videoRef.current || processing) return;
 
@@ -162,10 +160,8 @@ const App = () => {
             // Crear canvas para capturar la imagen
             const canvas = document.createElement('canvas');
             const video = videoRef.current;
-
-            canvas.width = Math.min(video.videoWidth, 1280);
-            canvas.height = Math.min(video.videoHeight, 720);
-
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
@@ -350,7 +346,7 @@ const App = () => {
                                     Registrando {currentProcess?.toUpperCase()}
                                 </h2>
                                 <p className="camera-subtitle">
-                                    Mantén tu rostro en el círculo y presiona TOMAR FOTO
+                                    Mantén tu rostro en el área de la cámara.
                                 </p>
                             </div>
 
@@ -363,55 +359,6 @@ const App = () => {
                                     playsInline
                                     muted
                                 />
-
-                                {/* Overlay con círculo guía */}
-                                <div className="camera-overlay">
-                                    <div className="camera-circle"></div>
-                                </div>
-
-                                {/* Instrucciones */}
-                                <div className="camera-instructions">
-                                    <div className="camera-instruction-box">
-                                        <div className="camera-instruction-text">
-                                            Mantén tu rostro dentro del círculo
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Contador */}
-                                <div className="camera-timer">
-                                    <div className="camera-timer-box">
-                                        <div className="camera-timer-text">
-                                            Tiempo restante: 30 segundos
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Botones de control */}
-                            <div className="control-buttons">
-                                <button
-                                    onClick={capturePhoto}
-                                    disabled={processing}
-                                    className="control-button button-capture"
-                                >
-                                    {processing ? (
-                                        <>
-                                            <div className="spinner"></div>
-                                            PROCESANDO...
-                                        </>
-                                    ) : (
-                                        <>📷 TOMAR FOTO</>
-                                    )}
-                                </button>
-
-                                <button
-                                    onClick={cancelProcess}
-                                    disabled={processing}
-                                    className="control-button button-cancel"
-                                >
-                                    ✕ CANCELAR
-                                </button>
                             </div>
                         </div>
                     )}
