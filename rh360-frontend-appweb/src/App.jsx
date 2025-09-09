@@ -39,14 +39,11 @@ const App = () => {
     const [loading, setLoading] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
     
-    // Nuevos estados para la estabilidad y el contador
-    const [isStable, setIsStable] = useState(false);
+    // Nuevo estado para el contador
     const [countdown, setCountdown] = useState(null);
 
     const videoRef = useRef(null);
-    const canvasRef = useRef(null); // Ref para el canvas de procesamiento
     const cameraViewRef = useRef(null);
-    const lastFrameData = useRef(null);
 
     // Actualizar hora cada segundo
     useEffect(() => {
@@ -78,70 +75,6 @@ const App = () => {
         return () => clearInterval(interval);
     }, []);
 
-    // Lógica para detectar movimiento
-    useEffect(() => {
-        let stabilityCounter = 0;
-        let animationFrameId;
-
-        const checkMovement = () => {
-            if (!videoRef.current || !canvasRef.current || videoRef.current.paused || videoRef.current.ended) {
-                animationFrameId = requestAnimationFrame(checkMovement);
-                return;
-            }
-
-            const video = videoRef.current;
-            const canvas = canvasRef.current;
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const currentFrameData = imageData.data;
-
-            if (lastFrameData.current) {
-                let diff = 0;
-                for (let i = 0; i < currentFrameData.length; i += 4) {
-                    diff += Math.abs(currentFrameData[i] - lastFrameData.current[i]);
-                    diff += Math.abs(currentFrameData[i + 1] - lastFrameData.current[i + 1]);
-                    diff += Math.abs(currentFrameData[i + 2] - lastFrameData.current[i + 2]);
-                }
-
-                const avgDiff = diff / (currentFrameData.length / 4);
-
-                // Si el promedio de la diferencia de píxeles es bajo, se considera estable
-                const stabilityThreshold = 5; 
-                if (avgDiff < stabilityThreshold) {
-                    stabilityCounter++;
-                } else {
-                    stabilityCounter = 0;
-                }
-            }
-
-            lastFrameData.current = currentFrameData.slice();
-
-            // Si se detecta estabilidad por 5 frames consecutivos, se considera estable
-            if (stabilityCounter >= 5) {
-                setIsStable(true);
-                cancelAnimationFrame(animationFrameId); // Detener el monitoreo de movimiento
-            } else {
-                animationFrameId = requestAnimationFrame(checkMovement);
-            }
-        };
-
-        if (cameraActive && !isStable) {
-            animationFrameId = requestAnimationFrame(checkMovement);
-        }
-
-        return () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-        };
-    }, [cameraActive, isStable]);
-
-
     // Manejo de la cámara y auto-captura con contador
     useEffect(() => {
         let stream = null;
@@ -162,6 +95,9 @@ const App = () => {
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
 
+                // Iniciar el contador inmediatamente después de que la cámara esté activa
+                setCountdown(3);
+
             } catch (error) {
                 console.error('Error accediendo a la cámara:', error);
                 showMessage('⚠️ No se pudo acceder a la cámara. Verifica los permisos.', 'error');
@@ -171,11 +107,6 @@ const App = () => {
 
         if (cameraActive) {
             startCamera();
-        }
-        
-        // Si se detecta estabilidad, iniciar el contador
-        if (isStable && countdown === null) {
-            setCountdown(3);
         }
         
         // Lógica del contador
@@ -189,7 +120,6 @@ const App = () => {
         if (countdown === 0) {
             capturePhoto();
             setCountdown(null);
-            setIsStable(false);
         }
 
         return () => {
@@ -200,7 +130,7 @@ const App = () => {
                 clearInterval(countdownInterval);
             }
         };
-    }, [cameraActive, isStable, countdown]);
+    }, [cameraActive, countdown]);
 
     // Funciones auxiliares
     const showMessage = (text, type) => {
@@ -216,7 +146,6 @@ const App = () => {
         setCameraActive(false);
         setProcessing(false);
         setCurrentProcess(null);
-        setIsStable(false);
         setCountdown(null);
     };
 
@@ -423,13 +352,9 @@ const App = () => {
                                     Registrando {currentProcess?.toUpperCase()}
                                 </h2>
                                 <p className="camera-subtitle">
-                                    {isStable && countdown !== null ? (
-                                        `Mantente inmóvil: `
-                                    ) : (
-                                        'Acércate y mantén el rostro en la cámara'
-                                    )}
+                                   Por favor, mira a la cámara y mantente quieto.
                                 </p>
-                                {isStable && countdown !== null && (
+                                {countdown !== null && (
                                     <div className="countdown-display">
                                         {countdown}
                                     </div>
@@ -445,7 +370,6 @@ const App = () => {
                                     playsInline
                                     muted
                                 />
-                                <canvas ref={canvasRef} style={{ display: 'none' }}></canvas>
                             </div>
                         </div>
                     )}
