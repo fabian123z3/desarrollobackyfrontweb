@@ -195,7 +195,7 @@ const App = () => {
             const imageData = canvas.toDataURL('image/jpeg', 0.85);
 
             // Enviar al servidor
-            const response = await fetch(`${API_BASE_URL}/verify-face/`, {
+            const response = await fetch(`${API_BASE_URL}/api/verify-face/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
