@@ -60,7 +60,7 @@ const App = () => {
     useEffect(() => {
         const checkSystem = async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/health/`, {
+                const response = await fetch(`${API_BASE_URL}/api/health/`, {
                     headers: NGROK_HEADERS
                 });
                 if (response.ok) {
