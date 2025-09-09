@@ -377,7 +377,7 @@ body {
 /* Botones de control - MEJORADOS PARA MÓVILES */
 .control-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-shrink: 0;
   margin-top: 1rem;
 }
@@ -385,16 +385,17 @@ body {
 .control-button {
   border: none;
   font-weight: bold;
-  padding: 1.5rem 2rem;
-  border-radius: 0.75rem;
-  font-size: 1.25rem;
+  padding: 2rem 2rem; /* MÁS PADDING POR DEFECTO */
+  border-radius: 1rem; /* MÁS REDONDEADO */
+  font-size: 1.4rem; /* MÁS GRANDE POR DEFECTO */
   transition: all 0.2s;
   cursor: pointer;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 60px;
+  min-height: 70px; /* MÁS ALTO POR DEFECTO */
+  font-weight: 800; /* MÁS NEGRITA */
 }
 
 .control-button:disabled {
@@ -405,10 +406,13 @@ body {
 .button-capture {
   flex: 2;
   background-color: #2563eb;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25); /* SOMBRA PARA DESTACAR */
 }
 
 .button-capture:hover:not(:disabled) {
   background-color: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
 }
 
 .button-cancel {
