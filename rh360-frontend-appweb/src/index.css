@@ -124,7 +124,7 @@ body {
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  padding: 2rem 1rem;
+  padding: 2.5rem 1rem;
   border-radius: 1.5rem;
   transition: all 0.2s;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -179,7 +179,6 @@ body {
 }
 
 /* ... Estilos de cámara y modal (sin cambios significativos en esta versión) */
-
 .camera-view {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: 1rem;
@@ -583,5 +582,55 @@ body {
 
   50% {
     transform: scale(1.1);
+  }
+}
+
+/* Estilos de responsividad para todos los dispositivos */
+@media (max-width: 1024px) {
+  .header-left img {
+    height: 40px;
+  }
+  .header-right img {
+    height: 35px;
+  }
+  .header-content-distributed {
+    min-height: 50px;
+  }
+  .main-area {
+    padding: 1rem;
+  }
+  .main-card {
+    padding: 1.5rem;
+    width: 95%;
+  }
+  .main-title {
+    font-size: 2rem;
+  }
+  .time-clock {
+    font-size: 2.5rem;
+  }
+  .time-date {
+    font-size: 1.8rem;
+  }
+  .buttons-grid {
+    gap: 1rem;
+    max-width: 300px;
+  }
+  .main-button {
+    padding: 2rem 1rem;
+    min-height: 10rem;
+  }
+  .button-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+  .button-title {
+    font-size: 1.8rem;
+  }
+  .button-desc {
+    font-size: 0.9rem;
+  }
+  .modal {
+    padding: 1rem;
   }
 }
