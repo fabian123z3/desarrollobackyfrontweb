@@ -654,531 +654,237 @@ body {
 /* Responsive breakpoints */
 
 /* Tablets grandes y desktop pequeño */
-@media (min-width: 768px) and (max-width: 1200px) {
- .header-content-distributed {
-   gap: 2rem;
-   min-height: 70px;
- }
- 
- .header-left img {
-   height: 55px;
-   max-width: 130px;
- }
- 
- .header-right img {
-   height: 45px;
-   max-width: 85px;
- }
- 
- .status-badge {
-   font-size: 0.85rem;
-   padding: 0.5rem 1rem;
- }
+@media (min-width: 768px) {
+  .header-content-distributed {
+    gap: 2rem;
+    min-height: 70px;
+  }
+  
+  .header-left img {
+    height: 55px;
+    max-width: 130px;
+  }
+  
+  .header-right img {
+    height: 45px;
+    max-width: 85px;
+  }
+  
+  .status-badge {
+    font-size: 0.85rem;
+    padding: 0.5rem 1rem;
+  }
 
- /* Botones tablet en horizontal */
- .main-card {
-   padding: 2rem;
-   height: calc(100vh - 100px);
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
- }
+  .main-card {
+    padding: 2rem;
+    min-height: 600px; /* Tamaño mínimo para tablet */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+  }
 
- .main-header {
-   margin-bottom: 2rem;
-   flex-shrink: 0;
- }
+  .main-header {
+    margin-bottom: 2rem;
+    flex-shrink: 0;
+  }
 
- .main-title {
-   font-size: 2.8rem;
- }
+  .main-title {
+    font-size: 2.8rem;
+  }
 
- .time-clock {
-   font-size: 3.5rem;
- }
+  .time-display {
+    display: block;
+  }
 
- .time-date {
-   font-size: 2.5rem;
- }
+  .time-clock {
+    font-size: 3.5rem;
+  }
 
- .buttons-grid {
-   gap: 3rem;
-   max-width: none;
-   margin: 0;
-   flex: 1;
-   display: grid;
-   grid-template-columns: 1fr 1fr;
-   align-items: stretch;
- }
+  .time-date {
+    font-size: 2.5rem;
+  }
 
- .main-button {
-   padding: 3rem 2rem;
-   height: 100%;
-   min-height: 350px;
-   border-radius: 2rem;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
- }
+  .buttons-grid {
+    gap: 3rem;
+    max-width: none;
+    margin: 0;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+  }
 
- .button-icon {
-   font-size: 6rem;
-   margin-bottom: 2rem;
- }
+  .main-button {
+    padding: 3rem 2rem;
+    height: 100%;
+    min-height: 350px;
+    border-radius: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 
- .button-title {
-   font-size: 3.5rem;
-   margin-bottom: 1.5rem;
- }
+  .button-icon {
+    font-size: 6rem;
+    margin-bottom: 2rem;
+  }
 
- .button-desc {
-   font-size: 1.8rem;
- }
+  .button-title {
+    font-size: 3.5rem;
+    margin-bottom: 1.5rem;
+  }
 
- /* Cámara en tablet */
- .camera-view {
-   height: calc(100vh - 90px);
-   padding: 0.5rem;
- }
+  .button-desc {
+    font-size: 1.8rem;
+  }
 
- .camera-title {
-   font-size: 3rem;
- }
+  /* Cámara en tablet */
+  .camera-view {
+    padding: 0.5rem;
+  }
 
- .camera-subtitle {
-   font-size: 1.8rem;
- }
+  .camera-title {
+    font-size: 3rem;
+  }
 
- .camera-instruction-text {
-   font-size: 2.2rem;
- }
+  .camera-subtitle {
+    font-size: 1.8rem;
+  }
 
- .camera-timer-text {
-   font-size: 1.6rem;
- }
+  .camera-instruction-text {
+    font-size: 2.2rem;
+  }
 
- .control-button {
-   font-size: 1.6rem;
-   padding: 2rem 4rem;
-   min-height: 80px;
- }
+  .camera-timer-text {
+    font-size: 1.6rem;
+  }
+
+  .control-button {
+    font-size: 1.6rem;
+    padding: 2rem 4rem;
+    min-height: 80px;
+  }
 }
 
-/* Desktop grande */
-@media (min-width: 1200px) {
- .header-container {
-   padding: 0 2rem;
- }
- 
- .header-content-distributed {
-   gap: 3rem;
-   min-height: 80px;
- }
- 
- .header-left img {
-   height: 60px;
-   max-width: 140px;
- }
- 
- .header-right img {
-   height: 50px;
-   max-width: 90px;
- }
- 
- .status-badge {
-   font-size: 0.9rem;
-   padding: 0.6rem 1.2rem;
- }
-
- .main-container {
-   height: calc(100vh - 70px);
-   overflow: hidden;
- }
-
- .main-area {
-   padding: 1.5rem 2rem;
-   align-items: center;
-   justify-content: center;
-   height: 100%;
- }
-
- .content-container {
-   max-width: 1200px;
-   width: 100%;
-   height: 100%;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
- }
-
- .main-card {
-   padding: 2rem;
-   margin-bottom: 0;
-   background-color: rgba(55, 65, 81, 0.6);
-   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-   height: 100%;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
- }
-
- .main-header {
-   margin-bottom: 2rem;
-   flex-shrink: 0;
- }
-
- .main-title {
-   font-size: 2.2rem;
-   margin-bottom: 1rem;
- }
-
- .time-display div {
-   gap: 2rem !important;
- }
-
- .time-clock {
-   font-size: 2.5rem;
- }
-
- .time-date {
-   font-size: 1.6rem;
- }
-
- .buttons-grid {
-   gap: 2rem;
-   max-width: none;
-   margin: 0;
-   flex: 1;
-   display: grid;
-   grid-template-columns: 1fr 1fr;
-   align-items: stretch;
- }
-
- .main-button {
-   padding: 2rem;
-   height: 100%;
-   min-height: 300px;
-   border-radius: 1.5rem;
-   transition: all 0.3s ease;
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
- }
-
- .main-button:hover {
-   transform: translateY(-4px);
-   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
- }
-
- .button-icon {
-   font-size: 4rem;
-   margin-bottom: 2rem;
-   flex-shrink: 0;
- }
-
- .button-title {
-   font-size: 2.5rem;
-   margin-bottom: 1rem;
-   flex-shrink: 0;
- }
-
- .button-desc {
-   font-size: 1.4rem;
-   flex-shrink: 0;
- }
-}
-
-/* Responsive general */
-@media (max-width: 1024px) {
- .main-container {
-   flex-direction: column;
-   height: 100vh;
- }
- 
- .main-area {
-   order: 1;
-   padding-top: 1rem;
-   padding-bottom: 1rem;
-   flex: 1;
- }
- 
- .buttons-grid {
-   grid-template-columns: 1fr;
-   gap: 1.5rem;
- }
- 
- .control-buttons {
-   flex-direction: column;
-   gap: 1rem;
- }
-}
-
-/* Móviles y tablets pequeñas */
+/* Móviles */
 @media (max-width: 767px) {
- .header {
-   padding: 0.25rem 0;
- }
- 
- .header-container {
-   padding: 0 0.75rem;
- }
- 
- .header-content-distributed {
-   gap: 0.5rem;
-   min-height: 50px;
- }
- 
- .header-left img {
-   height: 40px;
-   max-width: 90px;
- }
- 
- .header-right img {
-   height: 32px;
-   max-width: 60px;
- }
- 
- .status-badge {
-   font-size: 0.7rem;
-   padding: 0.3rem 0.6rem;
- }
+  .header {
+    padding: 0.25rem 0;
+  }
+  
+  .header-container {
+    padding: 0 0.75rem;
+  }
+  
+  .header-content-distributed {
+    gap: 0.5rem;
+    min-height: 50px;
+  }
+  
+  .header-left img {
+    height: 40px;
+    max-width: 90px;
+  }
+  
+  .header-right img {
+    height: 32px;
+    max-width: 60px;
+  }
+  
+  .status-badge {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
 
- .main-area {
-   padding: 1rem;
-   flex: 1;
- }
- 
- .main-card {
-   padding: 1.5rem;
- }
- 
- .main-title {
-   font-size: 2rem;
- }
+  .main-area {
+    padding: 1rem;
+  }
+  
+  .main-card {
+    padding: 1.5rem;
+  }
+  
+  .main-title {
+    font-size: 2rem;
+  }
 
- .camera-view {
-   padding: 0.5rem;
-   flex: 1;
-   height: calc(100vh - 80px);
- }
+  .time-clock {
+    font-size: 2.5rem;
+  }
 
- .camera-title {
-   font-size: 2rem;
- }
+  .time-date {
+    font-size: 1.6rem;
+  }
 
- .camera-subtitle {
-   font-size: 1.2rem;
- }
+  .buttons-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .main-button {
+    padding: 2rem 1rem;
+    min-height: 200px;
+  }
 
- .camera-instruction-text {
-   font-size: 1.4rem;
- }
+  .button-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
 
- .camera-timer-text {
-   font-size: 1.1rem;
- }
- 
- .camera-container {
-   max-width: 100%;
-   margin-bottom: 1rem;
-   flex: 1;
- }
+  .button-title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .button-desc {
+    font-size: 1rem;
+  }
 
- .camera-circle {
-   width: 90%;
-   height: 90%;
- }
+  .camera-view {
+    padding: 0.5rem;
+  }
 
- .control-button {
-   font-size: 1.2rem;
-   padding: 1.2rem 2rem;
-   min-height: 60px;
- }
- 
- .modal {
-   margin: 1rem;
- }
+  .camera-title {
+    font-size: 2rem;
+  }
+
+  .camera-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .camera-instruction-text {
+    font-size: 1.4rem;
+  }
+
+  .camera-timer-text {
+    font-size: 1.1rem;
+  }
+  
+  .camera-container {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .camera-circle {
+    width: 90%;
+    height: 90%;
+  }
+
+  .control-button {
+    font-size: 1.2rem;
+    padding: 1.2rem 2rem;
+    min-height: 60px;
+  }
+  
+  .modal {
+    margin: 1rem;
+  }
 }
 
-/* Móviles muy pequeños */
-@media (max-width: 480px) {
- .header-content-distributed {
-   gap: 0.25rem;
-   min-height: 45px;
- }
- 
- .header-left img {
-   height: 35px;
-   max-width: 80px;
- }
- 
- .header-right img {
-   height: 28px;
-   max-width: 50px;
- }
- 
- .status-badge {
-   font-size: 0.65rem;
-   padding: 0.25rem 0.5rem;
- }
-}
-
-/* Para orientación vertical (portrait) */
-@media (orientation: portrait) {
- .header {
-   position: sticky;
-   top: 0;
-   z-index: 100;
- }
- 
- .header-content-distributed {
-   min-height: 55px;
- }
-
- .camera-container {
-   aspect-ratio: 3/4;
- }
-}
-
-/* Para orientación horizontal en tablets */
-@media (orientation: landscape) and (min-width: 768px) and (max-width: 1200px) {
- .main-container {
-   height: calc(100vh - 80px);
- }
-
- .main-card {
-   height: calc(100vh - 120px);
- }
-
- .buttons-grid {
-   gap: 4rem;
- }
-
- .main-button {
-   min-height: 400px;
-   padding: 4rem 3rem;
- }
-
- .button-icon {
-   font-size: 7rem;
-   margin-bottom: 2.5rem;
- }
-
- .button-title {
-   font-size: 4rem;
-   margin-bottom: 2rem;
- }
-
- .button-desc {
-   font-size: 2rem;
- }
-
- .main-title {
-   font-size: 3rem;
- }
-
- .time-clock {
-   font-size: 4rem;
- }
-
- .time-date {
-   font-size: 3rem;
- }
-
- .camera-view {
-   height: calc(100vh - 80px);
- }
-
- .camera-container {
-   aspect-ratio: 16/9;
- }
-}
-
-/* Para pantallas muy anchas (landscape extremo) */
-@media (min-width: 1400px) {
- .header-container {
-   max-width: 1400px;
-   padding: 0 3rem;
- }
- 
- .header-content-distributed {
-   gap: 4rem;
- }
-
- .buttons-grid {
-   gap: 2.5rem;
- }
-
- .main-button {
-   min-height: 350px;
- }
-
- .button-icon {
-   font-size: 4.5rem;
- }
-
- .button-title {
-   font-size: 2.8rem;
- }
-
- .button-desc {
-   font-size: 1.5rem;
- }
-}
-
-/* Para pantallas grandes (1600px+) */
-@media (min-width: 1600px) {
- .main-area {
-   padding: 2rem 4rem;
- }
-
- .buttons-grid {
-   gap: 3rem;
- }
-
- .main-button {
-   min-height: 400px;
-   padding: 3rem;
- }
-
- .button-icon {
-   font-size: 5rem;
-   margin-bottom: 2.5rem;
- }
-
- .button-title {
-   font-size: 3.2rem;
-   margin-bottom: 1.5rem;
- }
-
- .button-desc {
-   font-size: 1.8rem;
- }
-}
-
-/* Pantallas extra grandes (1920px+) */
-@media (min-width: 1920px) {
- .main-button {
-   min-height: 450px;
-   padding: 4rem;
- }
-
- .button-icon {
-   font-size: 6rem;
-   margin-bottom: 3rem;
- }
-
- .button-title {
-   font-size: 3.8rem;
-   margin-bottom: 2rem;
- }
-
- .button-desc {
-   font-size: 2rem;
- }
-}
 .countdown-display {
   font-size: 8rem;
   font-weight: bold;
@@ -1192,10 +898,4 @@ body {
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
-}
-
-@media (max-width: 767px) {
-  .countdown-display {
-    font-size: 6rem;
-  }
 }
