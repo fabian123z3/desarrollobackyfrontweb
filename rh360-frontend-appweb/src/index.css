@@ -73,6 +73,10 @@ body {
   align-items: center;
   gap: 1.5rem;
 }
+.logo-left, .logo-right {
+    display: flex;
+    align-items: center;
+}
 
 .logo {
   width: 4rem;
@@ -100,12 +104,15 @@ body {
   display: flex;
   align-items: center;
   gap: 2rem;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; 
 }
 
 .status-badge {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   font-size: 0.875rem;
+  text-align: center;
   font-weight: 600;
 }
 
@@ -132,11 +139,17 @@ body {
   font-size: 1.5rem;
   font-family: 'Courier New', monospace;
   font-weight: bold;
+  text-align: center;
+  color: white;
+  
+  font-size: 45px;
 }
 
 .time-date {
   font-size: 0.875rem;
   color: #cbd5e1;
+  text-align: center;
+  font-size: 35px;
 }
 
 /* Layout principal */
@@ -368,9 +381,10 @@ body {
 /* Botones de control */
 .control-buttons {
   display: flex;
-  gap: 1.5rem;
-  max-width: 48rem;
+  gap: 2.4rem;
+  max-width: 70rem;
   margin: 0 auto;
+  font-size: 1.2em;
 }
 
 .control-button {
@@ -673,6 +687,7 @@ body {
   
   .header-right {
     flex-direction: column;
+    text-align: center;
     gap: 1rem;
   }
 

@@ -49,7 +49,7 @@ class AdvancedFaceRecognitionService:
             'min_quality_for_verification': 0.2,     # Calidad mínima muy permisiva
             
             # --- TIEMPOS Y PROCESAMIENTO ---
-            'verification_timeout': 12,              # Tiempo más corto para verificación
+            'verification_timeout': 6,              # Tiempo más corto para verificación
             'use_landmarks': True,                   # Usar landmarks para mejor precisión
             'use_environmental_adaptation': True,    # Usar adaptaciones ambientales
             'brightness_adaptation': True,           # Adaptación de brillo
@@ -729,17 +729,7 @@ class AdvancedFaceRecognitionService:
                     except Exception:
                         continue
                     
-                    # Si HOG falla, intentar CNN como respaldo
-                    try:
-                        face_locations = face_recognition.face_locations(
-                            enhanced_array, model="cnn"
-                        )
-                        if face_locations:
-                            face_location = face_locations[0]
-                            best_image_array = enhanced_array
-                            break
-                    except Exception:
-                        continue
+                   
                 
                 if not face_location:
                     return {

@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import logo from "./assets/logo.png"
+import logorh360 from "./assets/rh360.png"
 import successSound from './assets/correcto.mp3'; 
 import errorSound from './assets/falla.mp3'; 
 import asistenciaSound from './assets/asistencia.mp3'; 
 import intenteNuevamenteSound from './assets/intentenuevamente.mp3'; 
+import salida from './assets/salida.mp3';
+
 
 // Configuración del backend
-const API_BASE_URL = 'https://2699959d4052.ngrok-free.app/api';
+const API_BASE_URL = 'http://192.168.72.103:5173//api';
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
@@ -22,6 +25,7 @@ const playAudioSequence = (firstAudio, secondAudio) => {
 const errorAudio = new Audio(errorSound);
 const asistenciaAudio = new Audio(asistenciaSound); 
 const intenteNuevamenteAudio = new Audio(intenteNuevamenteSound);
+const salidaAudio = new Audio(salida);
 
 const App = () => {
     // Estados principales
@@ -138,7 +142,6 @@ const App = () => {
 
         setCurrentProcess(type);
         setCameraActive(true);
-        showMessage(`📸 Mira a la cámara y presiona el botón azul para marcar tu ${type.toUpperCase()}`, 'success');
 
         // Desplazar la pantalla hacia el área de la cámara
         setTimeout(() => {
@@ -188,8 +191,12 @@ const App = () => {
             const data = await response.json();
 
             if (response.ok && (data.success || data.duplicate_found)) {
-                // Reproduce el sonido de éxito
-                playAudioSequence(successAudio, asistenciaAudio);
+                // Reproduce el sonido de éxito, y luego el sonido de salida o entrada
+                if (currentProcess === 'salida') {
+                    playAudioSequence(successAudio, salidaAudio);
+                } else {
+                    playAudioSequence(successAudio, asistenciaAudio);
+                }
                 
                 // Reconocimiento exitoso
                 const employee = data.employee;
@@ -240,7 +247,6 @@ const App = () => {
         setRecognizedPerson(null);
         // Auto-mostrar instrucciones después de cerrar
         setTimeout(() => {
-            showMessage('👋 ¡Listo! Puedes marcar otra asistencia.', 'success');
         }, 500);
     };
 
@@ -250,19 +256,17 @@ const App = () => {
             <div className="header">
                 <div className="header-container">
                     <div className="header-content">
-                        <div className="header-left">
-                            <div className="logo">
-                                <img src={logo} width="64px" alt="Logo de la empresa" />
-                            </div>
-                            <div>
-                                <h1 className="header-title">
-                                    CONTROL DE ASISTENCIA
-                                </h1>
-                                <p className="header-subtitle">
-                                    Sistema Corporativo de Registro
-                                </p>
-                            </div>
-                        </div>
+                        <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    {/* Logo izquierda */}
+    <div className="logo-left">
+        <img src={logo} width="108px" alt="Logo de la empresa" />
+    </div>
+
+    {/* Logo derecha */}
+    <div className="logo-right">
+        <img src={logorh360} width="60px" alt="Logo RH360" />
+    </div>
+</div>
 
                         <div className="header-right">
                             <div className={`status-badge ${systemStatus === 'online' ? 'status-online' :
@@ -272,21 +276,7 @@ const App = () => {
                                     systemStatus === 'offline' ? '● DESCONECTADO' : '● VERIFICANDO'}
                             </div>
 
-                            <div className="time-display">
-                                <div className="time-clock">
-                                    {currentTime.toLocaleTimeString('es-CL', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </div>
-                                <div className="time-date">
-                                    {currentTime.toLocaleDateString('es-CL', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric'
-                                    })}
-                                </div>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -303,15 +293,28 @@ const App = () => {
                             <div className="main-view">
                                 <div className="main-card">
                                     <div className="main-header">
-                                        <div className="main-icon">
-                                            <span>👤</span>
-                                        </div>
+                                      
                                         <h2 className="main-title">
-                                            MARCAR ASISTENCIA
+                                            Control de Asistencia
                                         </h2>
-                                        <p className="main-subtitle">
-                                            Selecciona el tipo de registro que deseas realizar
-                                        </p>
+                                        <div className="time-display">
+                               <div className="time-display" style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="time-clock">
+        {currentTime.toLocaleTimeString('es-CL', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        })}
+    </div>
+    <div className="time-date">
+        {currentTime.toLocaleDateString('es-CL', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        })}
+    </div>
+</div>
+                            </div>
                                     </div>
 
                                     {/* Botones principales */}
@@ -324,7 +327,7 @@ const App = () => {
                                             <span className="button-icon">↗️</span>
                                             <div className="button-title">ENTRADA</div>
                                             <div className="button-desc">
-                                                Registrar llegada
+                                                Registrar Entrada
                                             </div>
                                         </button>
 
@@ -349,7 +352,7 @@ const App = () => {
                             <div className="camera-view" ref={cameraViewRef}>
                                 <div className="camera-header">
                                     <h2 className="camera-title">
-                                        REGISTRANDO {currentProcess?.toUpperCase()}
+                                        Registrando {currentProcess?.toUpperCase()}
                                     </h2>
                                     <p className="camera-subtitle">
                                         Mantén tu rostro en el círculo y presiona TOMAR FOTO
@@ -478,9 +481,7 @@ const App = () => {
                                 <div className="modal-confidence">
                                     Confianza: {recognizedPerson.confidence}
                                 </div>
-                                <div className="modal-timestamp">
-                                    {new Date().toLocaleString('es-CL')}
-                                </div>
+                                
                             </div>
 
                             {recognizedPerson.isDuplicate && (
