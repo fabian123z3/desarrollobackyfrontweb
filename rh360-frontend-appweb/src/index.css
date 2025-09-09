@@ -206,7 +206,7 @@ body {
 .buttons-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: 3rem; /* MÁS GAP */
   max-width: 48rem;
   margin: 0 auto;
   flex: 1;
@@ -214,11 +214,11 @@ body {
 
 .main-button {
   font-weight: bold;
-  padding: 4rem 2rem;
-  border-radius: 1rem;
+  padding: 6rem 3rem; /* PADDING GIGANTE */
+  border-radius: 2rem; /* MÁS REDONDEADO */
   transition: all 0.2s;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  min-height: 16rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* SOMBRA MÁS GRANDE */
+  min-height: 24rem; /* ALTURA GIGANTE */
   border: none;
   cursor: pointer;
   color: white;
@@ -229,8 +229,8 @@ body {
 }
 
 .main-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
 }
 
 .main-button:disabled {
@@ -256,19 +256,19 @@ body {
 }
 
 .button-icon {
-  font-size: 3.75rem;
-  margin-bottom: 1.5rem;
+  font-size: 6rem; /* ÍCONOS GIGANTES */
+  margin-bottom: 2.5rem;
   display: block;
 }
 
 .button-title {
-  font-size: 1.875rem;
+  font-size: 3rem; /* TÍTULOS GIGANTES */
   font-weight: bold;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .button-desc {
-  font-size: 1.125rem;
+  font-size: 1.8rem; /* DESCRIPCIÓN GRANDE */
   opacity: 0.9;
 }
 
