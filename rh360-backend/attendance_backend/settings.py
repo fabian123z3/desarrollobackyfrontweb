@@ -105,6 +105,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "https://8b92579d775d.ngrok-free.app",  # ← Tu nueva URL
+    # ✅ AGREGAR TU URL DE NETLIFY
+    "https://frontend123z3.netlify.app",  # ← Tu URL de Netlify
     # URLs de ngrok
     "https://2699959d4052.ngrok-free.app",
     "https://9a5a4bbb8b56.ngrok-free.app",

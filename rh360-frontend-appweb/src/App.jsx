@@ -9,7 +9,7 @@ import salida from './assets/salida.mp3';
 
 
 // Configuración del backend
-const API_BASE_URL = 'http://192.168.72.103:5173//api';
+const API_BASE_URL = 'https://8b92579d775d.ngrok-free.app/api';
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
