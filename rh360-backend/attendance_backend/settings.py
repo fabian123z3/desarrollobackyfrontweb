@@ -94,31 +94,66 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS Settings para permitir React Native
+# CORS Settings - CONFIGURACIÓN COMPLETA
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:19006",
     "http://127.0.0.1:19006",
-    "http://192.168.137.1:19006",   # PC en red compartida
-    "http://192.168.137.2:19006",   # Móvil en red compartida
-    "http://192.168.137.2:8081",
-    "http://192.168.96.36:19006",   # Agregar la IP del frontend
-    "http://192.168.96.36:8081",    # Expo development server
-    "http://192.168.72.103:19006",
-    "http://192.168.18.124:8000",
-    "https://aae17cd6d3e10c52fe31d199b8f04161.serveo.net",
-    "https://a34e4ba9b055.ngrok-free.app", 
-    "https://rh360-backend.loca.lt",
     "http://localhost:5173",
-    "http://192.168.18.124:5173",
-    "http://localhost:8000",  # I
-    "http://192.168.72.103:5173",
-    "http://192.168.72.103:8081",
+    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    # URLs de ngrok
+    "https://2699959d4052.ngrok-free.app",
+    "https://9a5a4bbb8b56.ngrok-free.app",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'ngrok-skip-browser-warning',
+    'access-control-allow-origin',
+    'access-control-allow-headers',
+    'access-control-allow-methods',
+]
+
+CORS_ALLOWED_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'ngrok-skip-browser-warning',
+]
+
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    '0.0.0.0',
+    '2699959d4052.ngrok-free.app',
+    '9a5a4bbb8b56.ngrok-free.app',
     '*'
 ]
 

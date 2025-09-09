@@ -5,7 +5,9 @@ tunnels:
   frontend:
     addr: 5173
     proto: http
+    inspect: false
     
   backend:
     addr: 8000
     proto: http
+    inspect: false

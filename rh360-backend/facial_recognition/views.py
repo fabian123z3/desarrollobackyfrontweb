@@ -327,6 +327,10 @@ def register_employee_face(request):
 def verify_attendance_face(request):
     """Verificar asistencia por reconocimiento facial balanceado"""
     try:
+        print(f"\n🔍 DEBUGGING verify_attendance_face:")
+        print(f"   Método: {request.method}")
+        print(f"   Content-Type: {request.content_type}")
+        print(f"   Datos recibidos: {list(request.data.keys()) if hasattr(request, 'data') else 'Sin data'}")
         data = request.data
         photo_data = data.get('photo', '')
         attendance_type = data.get('type', 'entrada').lower()

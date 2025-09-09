@@ -1,8 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 // Configuración - Conexión al Backend
-// ⚠️ IMPORTANTE: DEBES ACTUALIZAR ESTA URL CADA VEZ QUE INICIES NGROK.
-const API_BASE_URL = 'https://be4157ccb2b0.ngrok-free.app';
+// ⚠️ IMPORTANTE: URL del BACKEND de ngrok + /api
+const API_BASE_URL = 'https://2699959d4052.ngrok-free.app/api';
+
+// Headers comunes para ngrok
+const NGROK_HEADERS = {
+    'ngrok-skip-browser-warning': 'true'
+};
 
 const App = () => {
     // Estado de la aplicación
@@ -26,7 +31,12 @@ const App = () => {
             setLoading(true);
             console.log('🔄 Verificando estado del sistema...');
             
-            const response = await fetch(`${API_BASE_URL}/health/`);
+            const response = await fetch(`${API_BASE_URL}/health/`, {
+                headers: {
+                    ...NGROK_HEADERS
+                }
+            });
+            
             if (!response.ok) {
                 throw new Error(`Error HTTP ${response.status}: ${response.statusText}`);
             }
@@ -219,6 +229,7 @@ const App = () => {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
+                    ...NGROK_HEADERS
                 },
                 body: JSON.stringify(requestData)
             });
@@ -226,16 +237,17 @@ const App = () => {
             console.log('📥 Status de respuesta:', response.status, response.statusText);
             
             const responseText = await response.text();
-            console.log('📥 Respuesta raw:', responseText);
+            console.log('📥 Respuesta raw completa:', responseText);
             
             let data;
             try {
                 data = JSON.parse(responseText);
+                console.log('📥 Datos parseados:', data);
             } catch (e) {
+                console.error('❌ Error parseando JSON:', e);
+                console.error('📥 Respuesta que falló:', responseText);
                 throw new Error(`Respuesta no es JSON válido: ${responseText.substring(0, 200)}`);
             }
-            
-            console.log('📥 Datos parseados:', data);
             
             if (response.ok && (data.success || data.duplicate_found)) {
                 console.log('✅ Reconocimiento exitoso!');
