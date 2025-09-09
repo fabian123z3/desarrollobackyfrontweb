@@ -40,6 +40,9 @@ const App = () => {
     const [recognizedPerson, setRecognizedPerson] = useState(null);
     const [loading, setLoading] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
+    const [showManualLoginModal, setShowManualLoginModal] = useState(false);
+    const [manualRut, setManualRut] = useState('');
+    const [manualPassword, setManualPassword] = useState('');
 
     // Nuevo estado para el contador
     const [countdown, setCountdown] = useState(null);
@@ -245,11 +248,9 @@ const App = () => {
                 // Error en el reconocimiento
                 const errorMsg = data.message || 'Rostro no reconocido';
                 showMessage(`❌ ${errorMsg}`, 'error');
-
-                // Restablecer estados para reintentar
-                setTimeout(() => {
-                    resetProcess();
-                }, 3000);
+                
+                setCameraActive(false);
+                setShowManualLoginModal(true);
             }
 
         } catch (error) {
@@ -261,6 +262,71 @@ const App = () => {
             setLoading(false);
         }
     };
+
+    const handleManualLogin = async () => {
+        if (!manualRut || processing) return;
+
+        stopAllAudio();
+        setLoading(true);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/mark-attendance/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...NGROK_HEADERS,
+                },
+                body: JSON.stringify({
+                    employee_id: manualRut,
+                    // The password is not used, so it's not sent to the backend.
+                    type: currentProcess,
+                    latitude: null,
+                    longitude: null,
+                    address: 'Tótem de Asistencia - Ingreso Manual'
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+                const employee = data.employee;
+                if (employee) {
+                    setRecognizedPerson({
+                        name: employee.name,
+                        id: employee.employee_id || employee.id,
+                        rut: employee.rut,
+                        department: employee.department,
+                        type: currentProcess,
+                        isDuplicate: false
+                    });
+                }
+                setShowConfirmation(true);
+                setShowManualLoginModal(false);
+            } else {
+                showMessage(`❌ Error: ${data.message || 'Empleado no encontrado o datos incorrectos.'}`, 'error');
+                setManualRut('');
+                setManualPassword('');
+                setShowManualLoginModal(false);
+                resetProcess();
+            }
+
+        } catch (error) {
+            console.error('Error en el ingreso manual:', error);
+            showMessage('❌ Error de conexión. Intenta nuevamente.', 'error');
+            resetProcess();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRutChange = (e) => {
+        const value = e.target.value;
+        const filteredValue = value.replace(/[^0-9kK-]/g, '');
+        if (filteredValue.length <= 10) {
+            setManualRut(filteredValue);
+        }
+    };
+
 
     const closePersonInfo = () => {
         setRecognizedPerson(null);
@@ -301,7 +367,7 @@ const App = () => {
                 <div className="main-area">
                     <div className="content-container">
                         {/* Vista principal - Sin cámara activa */}
-                        {!cameraActive && (
+                        {!cameraActive && !showManualLoginModal && (
                             <div className="main-view">
                                 <div className="main-card">
                                     <div className="main-header">
@@ -384,6 +450,58 @@ const App = () => {
                                         playsInline
                                         muted
                                     />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Modal de ingreso manual */}
+                        {showManualLoginModal && (
+                            <div className="modal-overlay">
+                                <div className="modal">
+                                    <div className="modal-content">
+                                        <h2 className="modal-title" style={{ color: '#000' }}>Ingreso Manual</h2>
+                                        <p>No se pudo reconocer su rostro. Por favor, ingrese su RUT para registrar su asistencia.</p>
+
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
+                                            <input
+                                                type="text"
+                                                placeholder="Ingresa tu RUT (ej: 12345678-K)"
+                                                value={manualRut}
+                                                onChange={handleRutChange}
+                                                maxLength={10}
+                                                className="form-input"
+                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
+                                            />
+                                            <input
+                                                type="password"
+                                                placeholder="Ingresa tu contraseña"
+                                                value={manualPassword}
+                                                onChange={(e) => setManualPassword(e.target.value)}
+                                                className="form-input"
+                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
+                                            />
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                            <button
+                                                onClick={handleManualLogin}
+                                                className="modal-button"
+                                                style={{ backgroundColor: '#2563eb' }}
+                                            >
+                                                CONFIRMAR
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setShowManualLoginModal(false);
+                                                    resetProcess();
+                                                }}
+                                                className="modal-button"
+                                                style={{ backgroundColor: '#dc2626' }}
+                                            >
+                                                CANCELAR
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
