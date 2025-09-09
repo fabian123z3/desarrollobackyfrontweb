@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import logo from "./assets/logo.png"
 import logorh360 from "./assets/rh360.png"
-import successSound from './assets/correcto.mp3'; 
-import errorSound from './assets/falla.mp3'; 
-import asistenciaSound from './assets/asistencia.mp3'; 
-import intenteNuevamenteSound from './assets/intentenuevamente.mp3'; 
+import successSound from './assets/correcto.mp3';
+import errorSound from './assets/falla.mp3';
+import asistenciaSound from './assets/asistencia.mp3';
+import intenteNuevamenteSound from './assets/intentenuevamente.mp3';
 import salida from './assets/salida.mp3';
 
 
@@ -17,13 +17,13 @@ const successAudio = new Audio(successSound);
 
 const playAudioSequence = (firstAudio, secondAudio) => {
     firstAudio.play().catch(err => console.error(err)); // reproduce el primero
-    firstAudio.onended = () => { 
+    firstAudio.onended = () => {
         secondAudio.play().catch(err => console.error(err)); // reproduce el segundo
     };
 };
 
 const errorAudio = new Audio(errorSound);
-const asistenciaAudio = new Audio(asistenciaSound); 
+const asistenciaAudio = new Audio(asistenciaSound);
 const intenteNuevamenteAudio = new Audio(intenteNuevamenteSound);
 const salidaAudio = new Audio(salida);
 
@@ -197,7 +197,7 @@ const App = () => {
                 } else {
                     playAudioSequence(successAudio, asistenciaAudio);
                 }
-                
+
                 // Reconocimiento exitoso
                 const employee = data.employee;
                 if (employee) {
@@ -251,272 +251,265 @@ const App = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br flex flex-col">
-            {/* Header corporativo */}
-            <div className="header">
-                <div className="header-container">
-                    <div className="header-content">
-                        <div className="header-container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-    {/* Logo izquierda */}
-    <div className="logo-left">
-        <img src={logo} width="108px" alt="Logo de la empresa" />
-    </div>
+    <div className="min-h-screen bg-gradient-to-br flex flex-col">
+        {/* Header corporativo */}
+        <div className="header">
+            <div className="header-container">
+                <div className="header-content-distributed">
+                    {/* Logo izquierda */}
+                    <div className="header-left">
+                        <img src={logo} width="108px" alt="Logo de la empresa" />
+                    </div>
 
-    {/* Logo derecha */}
-    <div className="logo-right">
-        <img src={logorh360} width="60px" alt="Logo RH360" />
-    </div>
-</div>
-
-                        <div className="header-right">
-                            <div className={`status-badge ${systemStatus === 'online' ? 'status-online' :
-                                systemStatus === 'offline' ? 'status-offline' : 'status-checking'
-                                }`}>
-                                {systemStatus === 'online' ? '● SISTEMA ACTIVO' :
-                                    systemStatus === 'offline' ? '● DESCONECTADO' : '● VERIFICANDO'}
-                            </div>
-
-                            
+                    {/* Sistema activo al centro */}
+                    <div className="header-center">
+                        <div className={`status-badge ${systemStatus === 'online' ? 'status-online' :
+                            systemStatus === 'offline' ? 'status-offline' : 'status-checking'
+                            }`}>
+                            {systemStatus === 'online' ? '● SISTEMA ACTIVO' :
+                                systemStatus === 'offline' ? '● DESCONECTADO' : '● VERIFICANDO'}
                         </div>
+                    </div>
+
+                    {/* Logo derecha */}
+                    <div className="header-right">
+                        <img src={logorh360} width="60px" alt="Logo RH360" />
                     </div>
                 </div>
             </div>
-
-            {/* Contenido principal */}
-            <div className="main-container">
-
-                {/* Área principal de interacción */}
-                <div className="main-area">
-                    <div className="content-container">
-                        {/* Vista principal - Sin cámara activa */}
-                        {!cameraActive && (
-                            <div className="main-view">
-                                <div className="main-card">
-                                    <div className="main-header">
-                                      
-                                        <h2 className="main-title">
-                                            Control de Asistencia
-                                        </h2>
-                                        <div className="time-display">
-                               <div className="time-display" style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
-    <div className="time-clock">
-        {currentTime.toLocaleTimeString('es-CL', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        })}
-    </div>
-    <div className="time-date">
-        {currentTime.toLocaleDateString('es-CL', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        })}
-    </div>
-</div>
-                            </div>
-                                    </div>
-
-                                    {/* Botones principales */}
-                                    <div className="buttons-grid">
-                                        <button
-                                            onClick={() => startAttendance('entrada')}
-                                            disabled={systemStatus !== 'online'}
-                                            className="main-button button-entrada"
-                                        >
-                                            <span className="button-icon">↗️</span>
-                                            <div className="button-title">ENTRADA</div>
-                                            <div className="button-desc">
-                                                Registrar Entrada
-                                            </div>
-                                        </button>
-
-                                        <button
-                                            onClick={() => startAttendance('salida')}
-                                            disabled={systemStatus !== 'online'}
-                                            className="main-button button-salida"
-                                        >
-                                            <span className="button-icon">↙️</span>
-                                            <div className="button-title">SALIDA</div>
-                                            <div className="button-desc">
-                                                Registrar salida
-                                            </div>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Vista de cámara activa */}
-                        {cameraActive && (
-                            <div className="camera-view" ref={cameraViewRef}>
-                                <div className="camera-header">
-                                    <h2 className="camera-title">
-                                        Registrando {currentProcess?.toUpperCase()}
-                                    </h2>
-                                    <p className="camera-subtitle">
-                                        Mantén tu rostro en el círculo y presiona TOMAR FOTO
-                                    </p>
-                                </div>
-
-                                {/* Contenedor de la cámara */}
-                                <div className="camera-container">
-                                    <video
-                                        ref={videoRef}
-                                        className="camera-video"
-                                        autoPlay
-                                        playsInline
-                                        muted
-                                    />
-
-                                    {/* Overlay con círculo guía */}
-                                    <div className="camera-overlay">
-                                        <div className="camera-circle"></div>
-                                    </div>
-
-                                    {/* Instrucciones */}
-                                    <div className="camera-instructions">
-                                        <div className="camera-instruction-box">
-                                            <div className="camera-instruction-text">
-                                                Mantén tu rostro dentro del círculo
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Contador */}
-                                    <div className="camera-timer">
-                                        <div className="camera-timer-box">
-                                            <div className="camera-timer-text">
-                                                Tiempo restante: 30 segundos
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Botones de control */}
-                                <div className="control-buttons">
-                                    <button
-                                        onClick={capturePhoto}
-                                        disabled={processing}
-                                        className="control-button button-capture"
-                                    >
-                                        {processing ? (
-                                            <>
-                                                <div className="spinner"></div>
-                                                PROCESANDO...
-                                            </>
-                                        ) : (
-                                            <>📷 TOMAR FOTO</>
-                                        )}
-                                    </button>
-
-                                    <button
-                                        onClick={cancelProcess}
-                                        disabled={processing}
-                                        className="control-button button-cancel"
-                                    >
-                                        ✕ CANCELAR
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Mensaje de estado */}
-                        {message && (
-                            <div className="message-container">
-                                <div className={`message ${messageType === 'success' ? 'message-success' :
-                                    messageType === 'error' ? 'message-error' :
-                                    'message-warning'
-                                    }`}>
-                                    {message}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Modal de confirmación */}
-            {recognizedPerson && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <div className="modal-content">
-                            <div className="modal-icon">
-                                {recognizedPerson.isDuplicate ? '⚠️' : '✅'}
-                            </div>
-
-                            <h2 className={`modal-title ${recognizedPerson.isDuplicate ? 'modal-title-warning' : 'modal-title-success'}`}>
-                                {recognizedPerson.isDuplicate ? 'REGISTRO DUPLICADO' : 'REGISTRO EXITOSO'}
-                            </h2>
-
-                            <div className="modal-info">
-                                <div className="modal-name">
-                                    {recognizedPerson.name}
-                                </div>
-
-                                <div className="modal-details">
-                                    <div className="modal-detail-row">
-                                        <span className="modal-detail-label">ID Empleado:</span>
-                                        <span className="modal-detail-value">{recognizedPerson.id}</span>
-                                    </div>
-                                    <div className="modal-detail-row">
-                                        <span className="modal-detail-label">RUT:</span>
-                                        <span className="modal-detail-value">{recognizedPerson.rut}</span>
-                                    </div>
-                                    <div className="modal-detail-row">
-                                        <span className="modal-detail-label">Departamento:</span>
-                                        <span className="modal-detail-value">{recognizedPerson.department}</span>
-                                    </div>
-                                    <div className="modal-detail-row">
-                                        <span className="modal-detail-label">Acción:</span>
-                                        <span className={`modal-detail-badge ${recognizedPerson.type === 'entrada' ? 'badge-entrada' : 'badge-salida'
-                                            }`}>
-                                            {recognizedPerson.type?.toUpperCase()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="modal-extra-info">
-                                <div className="modal-confidence">
-                                    Confianza: {recognizedPerson.confidence}
-                                </div>
-                                
-                            </div>
-
-                            {recognizedPerson.isDuplicate && (
-                                <div className="modal-warning-box">
-                                    <div className="modal-warning-text">
-                                        Ya existe un registro de {recognizedPerson.type} reciente
-                                    </div>
-                                </div>
-                            )}
-
-                            <button
-                                onClick={closePersonInfo}
-                                className="modal-button"
-                            >
-                                CONTINUAR
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Loading overlay */}
-            {loading && (
-                <div className="loading-overlay">
-                    <div className="loading-spinner"></div>
-                    <div className="loading-title">
-                        PROCESANDO RECONOCIMIENTO
-                    </div>
-                    <div className="loading-subtitle">
-                        Manténgase inmóvil durante el análisis
-                    </div>
-                </div>
-            )}
         </div>
-    );
-};
+
+        {/* Contenido principal */}
+        <div className="main-container">
+            {/* Área principal de interacción */}
+            <div className="main-area">
+                <div className="content-container">
+                    {/* Vista principal - Sin cámara activa */}
+                    {!cameraActive && (
+                        <div className="main-view">
+                            <div className="main-card">
+                                <div className="main-header">
+                                    <h2 className="main-title">
+                                        Control de Asistencia
+                                    </h2>
+                                    <div className="time-display">
+                                        <div className="time-display" style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
+                                            <div className="time-clock">
+                                                {currentTime.toLocaleTimeString('es-CL', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    hour12: false
+                                                })}
+                                            </div>
+                                            <div className="time-date">
+                                                {currentTime.toLocaleDateString('es-CL', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric'
+                                                })}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Botones principales */}
+                                <div className="buttons-grid">
+                                    <button
+                                        onClick={() => startAttendance('entrada')}
+                                        disabled={systemStatus !== 'online'}
+                                        className="main-button button-entrada"
+                                    >
+                                        <span className="button-icon">↗️</span>
+                                        <div className="button-title">ENTRADA</div>
+                                        <div className="button-desc">
+                                            Registrar Entrada
+                                        </div>
+                                    </button>
+
+                                    <button
+                                        onClick={() => startAttendance('salida')}
+                                        disabled={systemStatus !== 'online'}
+                                        className="main-button button-salida"
+                                    >
+                                        <span className="button-icon">↙️</span>
+                                        <div className="button-title">SALIDA</div>
+                                        <div className="button-desc">
+                                            Registrar salida
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Vista de cámara activa */}
+                    {cameraActive && (
+                        <div className="camera-view" ref={cameraViewRef}>
+                            <div className="camera-header">
+                                <h2 className="camera-title">
+                                    Registrando {currentProcess?.toUpperCase()}
+                                </h2>
+                                <p className="camera-subtitle">
+                                    Mantén tu rostro en el círculo y presiona TOMAR FOTO
+                                </p>
+                            </div>
+
+                            {/* Contenedor de la cámara */}
+                            <div className="camera-container">
+                                <video
+                                    ref={videoRef}
+                                    className="camera-video"
+                                    autoPlay
+                                    playsInline
+                                    muted
+                                />
+
+                                {/* Overlay con círculo guía */}
+                                <div className="camera-overlay">
+                                    <div className="camera-circle"></div>
+                                </div>
+
+                                {/* Instrucciones */}
+                                <div className="camera-instructions">
+                                    <div className="camera-instruction-box">
+                                        <div className="camera-instruction-text">
+                                            Mantén tu rostro dentro del círculo
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Contador */}
+                                <div className="camera-timer">
+                                    <div className="camera-timer-box">
+                                        <div className="camera-timer-text">
+                                            Tiempo restante: 30 segundos
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Botones de control */}
+                            <div className="control-buttons">
+                                <button
+                                    onClick={capturePhoto}
+                                    disabled={processing}
+                                    className="control-button button-capture"
+                                >
+                                    {processing ? (
+                                        <>
+                                            <div className="spinner"></div>
+                                            PROCESANDO...
+                                        </>
+                                    ) : (
+                                        <>📷 TOMAR FOTO</>
+                                    )}
+                                </button>
+
+                                <button
+                                    onClick={cancelProcess}
+                                    disabled={processing}
+                                    className="control-button button-cancel"
+                                >
+                                    ✕ CANCELAR
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Mensaje de estado */}
+                    {message && (
+                        <div className="message-container">
+                            <div className={`message ${messageType === 'success' ? 'message-success' :
+                                messageType === 'error' ? 'message-error' :
+                                    'message-warning'
+                                }`}>
+                                {message}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+
+        {/* Modal de confirmación */}
+        {recognizedPerson && (
+            <div className="modal-overlay">
+                <div className="modal">
+                    <div className="modal-content">
+                        <div className="modal-icon">
+                            {recognizedPerson.isDuplicate ? '⚠️' : '✅'}
+                        </div>
+
+                        <h2 className={`modal-title ${recognizedPerson.isDuplicate ? 'modal-title-warning' : 'modal-title-success'}`}>
+                            {recognizedPerson.isDuplicate ? 'REGISTRO DUPLICADO' : 'REGISTRO EXITOSO'}
+                        </h2>
+
+                        <div className="modal-info">
+                            <div className="modal-name">
+                                {recognizedPerson.name}
+                            </div>
+
+                            <div className="modal-details">
+                                <div className="modal-detail-row">
+                                    <span className="modal-detail-label">ID Empleado:</span>
+                                    <span className="modal-detail-value">{recognizedPerson.id}</span>
+                                </div>
+                                <div className="modal-detail-row">
+                                    <span className="modal-detail-label">RUT:</span>
+                                    <span className="modal-detail-value">{recognizedPerson.rut}</span>
+                                </div>
+                                <div className="modal-detail-row">
+                                    <span className="modal-detail-label">Departamento:</span>
+                                    <span className="modal-detail-value">{recognizedPerson.department}</span>
+                                </div>
+                                <div className="modal-detail-row">
+                                    <span className="modal-detail-label">Acción:</span>
+                                    <span className={`modal-detail-badge ${recognizedPerson.type === 'entrada' ? 'badge-entrada' : 'badge-salida'
+                                        }`}>
+                                        {recognizedPerson.type?.toUpperCase()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="modal-extra-info">
+                            <div className="modal-confidence">
+                                Confianza: {recognizedPerson.confidence}
+                            </div>
+                        </div>
+
+                        {recognizedPerson.isDuplicate && (
+                            <div className="modal-warning-box">
+                                <div className="modal-warning-text">
+                                    Ya existe un registro de {recognizedPerson.type} reciente
+                                </div>
+                            </div>
+                        )}
+
+                        <button
+                            onClick={closePersonInfo}
+                            className="modal-button"
+                        >
+                            CONTINUAR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* Loading overlay */}
+        {loading && (
+            <div className="loading-overlay">
+                <div className="loading-spinner"></div>
+                <div className="loading-title">
+                    PROCESANDO RECONOCIMIENTO
+                </div>
+                <div className="loading-subtitle">
+                    Manténgase inmóvil durante el análisis
+                </div>
+            </div>
+        )}
+    </div>
+)};
 
 export default App;

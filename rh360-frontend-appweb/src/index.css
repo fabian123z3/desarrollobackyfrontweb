@@ -725,3 +725,44 @@ body {
     margin: 1rem;
   }
 }
+.header-content-distributed {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .header-content-distributed {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .header-left img {
+    width: 80px;
+  }
+  
+  .header-right img {
+    width: 45px;
+  }
+}
