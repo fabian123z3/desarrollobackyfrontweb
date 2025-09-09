@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Asistencia</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #2c3e50;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            min-width: 120px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 15px 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-entrada {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-salida {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-facial {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .badge-manual {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container { 
+                padding: 15px; 
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            th, td { 
+                padding: 8px 5px; 
+                font-size: 12px; 
+            }
+            
+            .stat-number {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Panel de Asistencia</h1>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="totalToday">0</div>
+                <div class="stat-label">Hoy</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="totalEmployees">0</div>
+                <div class="stat-label">Empleados</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="entriesCount">0</div>
+                <div class="stat-label">Entradas</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="exitsCount">0</div>
+                <div class="stat-label">Salidas</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="controls-row">
+                <select id="daysFilter">
+                    <option value="1">Hoy</option>
+                    <option value="7" selected>7 días</option>
+                    <option value="30">30 días</option>
+                </select>
+                
+                <select id="employeeFilter">
+                    <option value="">Todos</option>
+                </select>
+                
+                <select id="typeFilter">
+                    <option value="">Todos</option>
+                    <option value="entrada">Entradas</option>
+                    <option value="salida">Salidas</option>
+                </select>
+                
+                <button class="btn btn-primary" onclick="loadData()">🔄 Actualizar</button>
+                
+                <button class="btn btn-danger" onclick="deleteSelected()" id="deleteBtn" style="display:none;">
+                    🗑️ Eliminar (<span id="selectedCount">0</span>)
+                </button>
+            </div>
+        </div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            ⏳ Cargando...
+        </div>
+        
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th width="40">
+                            <input type="checkbox" id="selectAll" onchange="toggleAll()">
+                        </th>
+                        <th>Fecha</th>
+                        <th>Empleado</th>
+                        <th>Tipo</th>
+                        <th>Ubicación</th>
+                        <th>Método</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>⚠️ Confirmar eliminación</h3>
+            <p id="deleteMessage">¿Eliminar registros seleccionados?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="confirmDelete()">Eliminar</button>
+                <button class="btn btn-primary" onclick="cancelDelete()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedIds = new Set();
+        let pendingDelete = null;
+
+        async function loadData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('dataTable').style.display = 'none';
+            selectedIds.clear();
+            updateCount();
+
+            try {
+                const days = document.getElementById('daysFilter').value;
+                const employeeId = document.getElementById('employeeFilter').value;
+                const type = document.getElementById('typeFilter').value;
+                
+                let url = `/api/attendance-records/?days=${days}&limit=500`;
+                if (employeeId) url += `&employee_id=${employeeId}`;
+
+                const [recordsRes, employeesRes] = await Promise.all([
+                    fetch(url),
+                    fetch('/api/employees/')
+                ]);
+
+                const recordsData = await recordsRes.json();
+                const employeesData = await employeesRes.json();
+
+                if (recordsData.success && employeesData.success) {
+                    let records = recordsData.records;
+                    
+                    if (type) {
+                        records = records.filter(r => r.attendance_type === type);
+                    }
+
+                    updateStats(records, employeesData.employees);
+                    updateEmployees(employeesData.employees);
+                    renderTable(records);
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('dataTable').style.display = 'table';
+                }
+            } catch (error) {
+                document.getElementById('loading').innerHTML = '❌ Error cargando datos';
+            }
+        }
+
+        function updateStats(records, employees) {
+            const today = new Date().toISOString().split('T')[0];
+            const todayRecords = records.filter(r => r.timestamp.startsWith(today));
+            const entries = todayRecords.filter(r => r.attendance_type === 'entrada');
+            const exits = todayRecords.filter(r => r.attendance_type === 'salida');
+            
+            document.getElementById('totalToday').textContent = todayRecords.length;
+            document.getElementById('totalEmployees').textContent = employees.length;
+            document.getElementById('entriesCount').textContent = entries.length;
+            document.getElementById('exitsCount').textContent = exits.length;
+        }
+
+        function updateEmployees(employees) {
+            const select = document.getElementById('employeeFilter');
+            const current = select.value;
+            
+            select.innerHTML = '<option value="">Todos</option>';
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = emp.name;
+                if (emp.id === current) option.selected = true;
+                select.appendChild(option);
+            });
+        }
+
+        function renderTable(records) {
+    // Eliminar duplicados basados en empleado, timestamp y tipo
+    const uniqueRecords = records.filter((record, index, self) => {
+        return index === self.findIndex(r => 
+            r.employee_name === record.employee_name &&
+            r.attendance_type === record.attendance_type &&
+            new Date(r.timestamp).getTime() === new Date(record.timestamp).getTime()
+        );
+    });
+    
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    if (uniqueRecords.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: #6c757d;">📋 Sin registros</td></tr>';
+        return;
+    }
+
+    uniqueRecords.forEach(record => {
+        const row = tbody.insertRow();
+        const date = new Date(record.timestamp);
+        
+        let method = 'Manual';
+        let badgeClass = 'badge-manual';
+        
+        if (record.face_confidence > 0) {
+            method = `Facial ${(record.face_confidence * 100).toFixed(0)}%`;
+            badgeClass = 'badge-facial';
+        }
+        
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" value="${record.id}" onchange="toggleSelect('${record.id}')">
+            </td>
+            <td>${date.toLocaleDateString('es-CL')} ${date.toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</td>
+            <td>${record.employee_name}</td>
+            <td><span class="badge badge-${record.attendance_type}">${record.attendance_type.toUpperCase()}</span></td>
+            <td>${record.address ? record.address.substring(0, 30) + '...' : '-'}</td>
+            <td><span class="badge ${badgeClass}">${method}</span></td>
+            <td>
+                <button class="delete-btn" onclick="deleteOne('${record.id}')">
+                    🗑️
+                </button>
+            </td>
+        `;
+    });
+}
+
+        function toggleAll() {
+            const selectAll = document.getElementById('selectAll').checked;
+            const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+            
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll;
+                if (selectAll) {
+                    selectedIds.add(cb.value);
+                } else {
+                    selectedIds.delete(cb.value);
+                }
+            });
+            
+            updateCount();
+        }
+
+        function toggleSelect(id) {
+            const checkbox = document.querySelector(`input[value="${id}"]`);
+            if (checkbox.checked) {
+                selectedIds.add(id);
+            } else {
+                selectedIds.delete(id);
+            }
+            updateCount();
+        }
+
+        function updateCount() {
+            const count = selectedIds.size;
+            document.getElementById('selectedCount').textContent = count;
+            document.getElementById('deleteBtn').style.display = count > 0 ? 'inline-block' : 'none';
+        }
+
+        function deleteOne(id) {
+            pendingDelete = [id];
+            document.getElementById('deleteMessage').textContent = '¿Eliminar este registro?';
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function deleteSelected() {
+            if (selectedIds.size === 0) return;
+            pendingDelete = Array.from(selectedIds);
+            document.getElementById('deleteMessage').textContent = `¿Eliminar ${selectedIds.size} registros?`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        async function confirmDelete() {
+            if (!pendingDelete) return;
+            
+            document.getElementById('deleteModal').classList.remove('active');
+            
+            let success = 0;
+            for (const id of pendingDelete) {
+                try {
+                    const response = await fetch(`/api/delete-attendance/${id}/`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) success++;
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+            
+            alert(`✅ ${success} registro(s) eliminado(s)`);
+            pendingDelete = null;
+            selectedIds.clear();
+            loadData();
+        }
+
+        function cancelDelete() {
+            document.getElementById('deleteModal').classList.remove('active');
+            pendingDelete = null;
+        }
+
+        document.getElementById('daysFilter').addEventListener('change', loadData);
+        document.getElementById('employeeFilter').addEventListener('change', loadData);
+        document.getElementById('typeFilter').addEventListener('change', loadData);
+
+        loadData();
+    </script>
+</body>
+</html>
