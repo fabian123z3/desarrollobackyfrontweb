@@ -1,8 +1,8 @@
 /* Reset y base */
 * {
- margin: 0;
- padding: 0;
- box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
@@ -204,7 +204,7 @@ body {
 /* Botones principales */
 .buttons-grid {
   display: grid;
-  grid-template-columns: 1fr; /* Always a single column to match the image */
+  grid-template-columns: 1fr; /* Mantiene una sola columna para todos los tamaños de pantalla */
   gap: 2rem;
   max-width: 48rem;
   margin: 0 auto;
@@ -678,58 +678,86 @@ body {
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.1);
   }
 }
 
-/* Responsividad mejorada para tablets y móviles */
+/* Responsividad universal para todos los dispositivos */
 @media (max-width: 1024px) {
-  .main-area {
-    padding: 1rem;
-    height: auto;
+  .header-left img {
+    height: 40px;
+    max-width: 100px;
   }
-  .main-card {
-    padding: 1.5rem;
-    min-height: auto;
-    width: 95%;
+  .header-right img {
+    height: 35px;
+    max-width: 70px;
   }
-  .main-title {
-    font-size: 2.2rem;
-  }
-  .time-clock {
-    font-size: 3rem;
-  }
-  .time-date {
-    font-size: 2rem;
-  }
-  .buttons-grid {
-    gap: 1.5rem;
-  }
-  .main-button {
-    min-height: 18rem;
-    padding: 2rem;
-  }
-  .button-icon {
-    font-size: 5rem;
-    margin-bottom: 1rem;
-  }
-  .button-title {
-    font-size: 2.5rem;
-  }
-  .button-desc {
-    font-size: 1.2rem;
+  .header-content-distributed {
+    min-height: 50px;
   }
 }
 
-@media (max-width: 767px) {
-  .main-button {
-    min-height: 15rem;
-  }
-  .button-icon {
-    font-size: 4rem;
-  }
-  .button-title {
-    font-size: 2rem;
-  }
+.main-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.main-card {
+  padding: 1.5rem;
+  min-height: auto;
+  width: 95%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.main-title {
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.time-clock {
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  margin-bottom: 0.5rem;
+}
+
+.time-date {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+.buttons-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Siempre una columna */
+  gap: 1.5rem;
+  margin: 0 auto;
+  max-width: 400px;
+}
+
+.main-button {
+  padding: 2.5rem 1rem;
+  min-height: 12rem;
+  border-radius: 1.5rem;
+}
+
+.button-icon {
+  font-size: clamp(4rem, 10vw, 5rem);
+  margin-bottom: 1rem;
+}
+
+.button-title {
+  font-size: clamp(2rem, 6vw, 2.5rem);
+}
+
+.button-desc {
+  font-size: clamp(1rem, 3vw, 1.2rem);
+}
+
+.form-input {
+  width: 100%;
 }
