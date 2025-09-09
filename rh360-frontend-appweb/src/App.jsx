@@ -74,11 +74,10 @@ const App = () => {
         const interval = setInterval(checkSystem, 30000);
         return () => clearInterval(interval);
     }, []);
-
-    // Manejo de la cámara y auto-captura con contador
+    
+    // useEffect para manejar el stream de la cámara (se ejecuta solo cuando cameraActive cambia)
     useEffect(() => {
         let stream = null;
-        let countdownInterval;
 
         const startCamera = async () => {
             if (!cameraActive || !videoRef.current) return;
@@ -95,9 +94,6 @@ const App = () => {
                 videoRef.current.srcObject = stream;
                 await videoRef.current.play();
 
-                // Iniciar el contador inmediatamente después de que la cámara esté activa
-                setCountdown(3);
-
             } catch (error) {
                 console.error('Error accediendo a la cámara:', error);
                 showMessage('⚠️ No se pudo acceder a la cámara. Verifica los permisos.', 'error');
@@ -108,29 +104,36 @@ const App = () => {
         if (cameraActive) {
             startCamera();
         }
-        
-        // Lógica del contador
+
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [cameraActive]);
+
+
+    // useEffect para manejar el contador (se ejecuta solo cuando countdown cambia)
+    useEffect(() => {
+        let countdownInterval;
+
         if (countdown !== null && countdown > 0) {
             countdownInterval = setInterval(() => {
                 setCountdown(prev => prev - 1);
             }, 1000);
         }
         
-        // Cuando el contador llega a 0, tomar la foto
         if (countdown === 0) {
             capturePhoto();
             setCountdown(null);
         }
 
         return () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
             if (countdownInterval) {
                 clearInterval(countdownInterval);
             }
         };
-    }, [cameraActive, countdown]);
+    }, [countdown]);
 
     // Funciones auxiliares
     const showMessage = (text, type) => {
@@ -155,6 +158,9 @@ const App = () => {
         
         setCurrentProcess(type);
         setCameraActive(true);
+
+        // Iniciar el contador inmediatamente al activar la cámara
+        setCountdown(3);
 
         // Desplazar la pantalla hacia el área de la cámara
         setTimeout(() => {
