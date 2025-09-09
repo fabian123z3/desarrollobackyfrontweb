@@ -262,27 +262,30 @@ body {
 .camera-view {
  background-color: rgba(55, 65, 81, 0.4);
  border-radius: 1rem;
- padding: 2rem;
+ padding: 1rem;
  flex: 1;
  display: flex;
  flex-direction: column;
+ height: calc(100vh - 120px);
 }
 
 .camera-header {
  text-align: center;
  margin-bottom: 1rem;
+ flex-shrink: 0;
 }
 
 .camera-title {
- font-size: 1.875rem;
+ font-size: 2.5rem;
  font-weight: bold;
  color: white;
  margin-bottom: 0.5rem;
 }
 
 .camera-subtitle {
- font-size: 1.25rem;
+ font-size: 1.5rem;
  color: #cbd5e1;
+ font-weight: 600;
 }
 
 .camera-container {
@@ -290,16 +293,19 @@ body {
  background-color: black;
  border-radius: 1rem;
  overflow: hidden;
- aspect-ratio: 16/9;
  width: 100%;
- margin: 0 auto 1.5rem auto;
+ margin: 0 auto 1rem auto;
  flex: 1;
+ display: flex;
+ align-items: center;
+ justify-content: center;
 }
 
 .camera-video {
  width: 100%;
  height: 100%;
  object-fit: cover;
+ transform: scaleX(-1);
 }
 
 .camera-overlay {
@@ -311,73 +317,81 @@ body {
 }
 
 .camera-circle {
- width: 90%;
- height: 90%;
- border: 4px solid white;
+ width: 85%;
+ height: 85%;
+ border: 6px solid white;
  border-radius: 50%;
  opacity: 0.8;
+ box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }
 
 .camera-instructions {
  position: absolute;
- top: 1.5rem;
- left: 1.5rem;
- right: 1.5rem;
+ top: 2rem;
+ left: 2rem;
+ right: 2rem;
 }
 
 .camera-instruction-box {
- background-color: rgba(0, 0, 0, 0.6);
+ background-color: rgba(0, 0, 0, 0.8);
  color: white;
  text-align: center;
- padding: 0.75rem 1.5rem;
- border-radius: 0.75rem;
+ padding: 1.5rem 2rem;
+ border-radius: 1rem;
+ border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .camera-instruction-text {
- font-size: 1.125rem;
- font-weight: 600;
+ font-size: 1.8rem;
+ font-weight: 700;
+ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+ line-height: 1.4;
 }
 
 .camera-timer {
  position: absolute;
- bottom: 1.5rem;
- left: 1.5rem;
- right: 1.5rem;
+ bottom: 2rem;
+ left: 2rem;
+ right: 2rem;
 }
 
 .camera-timer-box {
- background-color: rgba(0, 0, 0, 0.6);
+ background-color: rgba(220, 38, 38, 0.9);
  color: white;
  text-align: center;
- padding: 0.75rem 1.5rem;
- border-radius: 0.75rem;
+ padding: 1rem 2rem;
+ border-radius: 1rem;
+ border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .camera-timer-text {
- font-size: 1rem;
+ font-size: 1.4rem;
+ font-weight: 700;
+ text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 /* Botones de control */
 .control-buttons {
  display: flex;
- gap: 2.4rem;
- max-width: 70rem;
+ gap: 1.5rem;
  margin: 0 auto;
  font-size: 1.2em;
+ flex-shrink: 0;
 }
 
 .control-button {
  border: none;
  font-weight: bold;
- padding: 1.5rem 2rem;
- border-radius: 0.75rem;
- font-size: 1.25rem;
+ padding: 1.5rem 3rem;
+ border-radius: 1rem;
+ font-size: 1.4rem;
  transition: all 0.2s;
  cursor: pointer;
  color: white;
  display: flex;
  align-items: center;
  justify-content: center;
+ min-height: 70px;
 }
 
 .control-button:disabled {
@@ -386,7 +400,7 @@ body {
 }
 
 .button-capture {
- flex: 1;
+ flex: 2;
  background-color: #2563eb;
 }
 
@@ -395,11 +409,12 @@ body {
 }
 
 .button-cancel {
- background-color: #475569;
+ flex: 1;
+ background-color: #dc2626;
 }
 
 .button-cancel:hover:not(:disabled) {
- background-color: #374151;
+ background-color: #b91c1c;
 }
 
 .spinner {
@@ -718,6 +733,34 @@ body {
  .button-desc {
    font-size: 1.8rem;
  }
+
+ /* Cámara en tablet */
+ .camera-view {
+   height: calc(100vh - 90px);
+   padding: 0.5rem;
+ }
+
+ .camera-title {
+   font-size: 3rem;
+ }
+
+ .camera-subtitle {
+   font-size: 1.8rem;
+ }
+
+ .camera-instruction-text {
+   font-size: 2.2rem;
+ }
+
+ .camera-timer-text {
+   font-size: 1.6rem;
+ }
+
+ .control-button {
+   font-size: 1.6rem;
+   padding: 2rem 4rem;
+   min-height: 80px;
+ }
 }
 
 /* Desktop grande */
@@ -866,6 +909,7 @@ body {
  
  .control-buttons {
    flex-direction: column;
+   gap: 1rem;
  }
 }
 
@@ -913,8 +957,25 @@ body {
  }
 
  .camera-view {
-   padding: 1rem;
+   padding: 0.5rem;
    flex: 1;
+   height: calc(100vh - 80px);
+ }
+
+ .camera-title {
+   font-size: 2rem;
+ }
+
+ .camera-subtitle {
+   font-size: 1.2rem;
+ }
+
+ .camera-instruction-text {
+   font-size: 1.4rem;
+ }
+
+ .camera-timer-text {
+   font-size: 1.1rem;
  }
  
  .camera-container {
@@ -926,6 +987,12 @@ body {
  .camera-circle {
    width: 90%;
    height: 90%;
+ }
+
+ .control-button {
+   font-size: 1.2rem;
+   padding: 1.2rem 2rem;
+   min-height: 60px;
  }
  
  .modal {
@@ -966,6 +1033,10 @@ body {
  
  .header-content-distributed {
    min-height: 55px;
+ }
+
+ .camera-container {
+   aspect-ratio: 3/4;
  }
 }
 
@@ -1012,6 +1083,14 @@ body {
 
  .time-date {
    font-size: 3rem;
+ }
+
+ .camera-view {
+   height: calc(100vh - 80px);
+ }
+
+ .camera-container {
+   aspect-ratio: 16/9;
  }
 }
 
