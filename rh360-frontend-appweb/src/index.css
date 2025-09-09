@@ -922,6 +922,24 @@ body {
     flex: 1;
     aspect-ratio: auto;
   }
+  
+  .camera-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .camera-header {
+    margin-bottom: 1rem;
+  }
+  
+  .camera-title {
+    font-size: 1.8rem;
+  }
+  
+  .camera-subtitle {
+    font-size: 1.2rem;
+  }
 }
 
 /* Para pantallas muy anchas (landscape extremo) */
@@ -975,11 +993,6 @@ body {
     flex-shrink: 0; /* No se comprime */
   }
 
-  .main-title {
-    font-size: 2.2rem;
-    margin-bottom: 1rem;
-  }
-
   /* Tiempo compacto */
   .time-display div {
     gap: 2rem !important;
@@ -995,12 +1008,12 @@ body {
 
   /* Botones que ocupan el máximo espacio disponible */
   .buttons-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
     max-width: none; /* Sin límite de ancho */
     margin: 0;
     flex: 1; /* Ocupa todo el espacio restante */
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     align-items: stretch; /* Botones se estiran verticalmente */
   }
 
