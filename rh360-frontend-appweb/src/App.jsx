@@ -464,7 +464,7 @@ const App = () => {
                                 <div className="modal">
                                     <div className="modal-content">
                                         <h2 className="modal-title" style={{ color: '#000' }}>Ingreso Manual</h2>
-                                        <p>Ingrese su RUT para registrar su asistencia.</p>
+                                        <p>Ingrese su RUT y contraseña para registrar su asistencia.</p>
 
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
                                             <input
