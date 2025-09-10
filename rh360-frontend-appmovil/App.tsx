@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Alert, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
   ScrollView,
   Modal,
   TextInput,
@@ -23,7 +23,7 @@ import * as Brightness from 'expo-brightness';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 
-const API_BASE_URL = 'https://247f0bcafed1.ngrok-free.app/api';
+const API_BASE_URL = 'https://bc60faf8d7e5.ngrok-free.app/api';
 //ip de practicantes: const API_BASE_URL = 'http://192.168.72.103:8000/api';
 //ip de mi casa: const API_BASE_URL = 'http://192.168.18.124:8000/api';
 
@@ -61,9 +61,9 @@ export default function App() {
   const [isOnline, setIsOnline] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<string>('📍 Obteniendo ubicación...');
-  const [coordinates, setCoordinates] = useState<{lat: number, lng: number} | null>(null);
+  const [coordinates, setCoordinates] = useState<{ lat: number, lng: number } | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  
+
   // Camera States
   const [permission, requestPermission] = useCameraPermissions();
   const [showCamera, setShowCamera] = useState(false);
@@ -77,7 +77,7 @@ export default function App() {
   // Photo Registration States
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([]);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-  
+
   // Registration States
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [showNewEmployeeModal, setShowNewEmployeeModal] = useState(false);
@@ -120,8 +120,8 @@ export default function App() {
 
   useEffect(() => {
     if (showCamera && facing === 'back') {
-      const shouldUseTorch = flashMode === 'on' || 
-                             (flashMode === 'auto' && (new Date().getHours() < 8 || new Date().getHours() > 18));
+      const shouldUseTorch = flashMode === 'on' ||
+        (flashMode === 'auto' && (new Date().getHours() < 8 || new Date().getHours() > 18));
       setEnableTorch(shouldUseTorch);
     } else {
       setEnableTorch(false);
@@ -147,7 +147,7 @@ export default function App() {
       }
 
       setCurrentLocation('📍 Obteniendo ubicación...');
-      
+
       const location = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.High,
       });
@@ -155,7 +155,7 @@ export default function App() {
       const { latitude, longitude } = location.coords;
       setCoordinates({ lat: latitude, lng: longitude });
       setCurrentLocation(`📍 ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-      
+
       try {
         const addresses = await Location.reverseGeocodeAsync({ latitude, longitude });
         if (addresses.length > 0) {
@@ -177,7 +177,7 @@ export default function App() {
     NetInfo.addEventListener(state => {
       const online = state.isConnected && state.isInternetReachable;
       setIsOnline(online || false);
-      
+
       if (online) {
         checkAndSyncOfflineRecords();
       }
@@ -188,7 +188,7 @@ export default function App() {
     try {
       const storedHistory = await AsyncStorage.getItem('attendanceHistory');
       if (storedHistory) setAttendanceHistory(JSON.parse(storedHistory));
-      
+
       const storedOffline = await AsyncStorage.getItem('offlineRecords');
       if (storedOffline) setOfflineRecords(JSON.parse(storedOffline));
 
@@ -209,11 +209,11 @@ export default function App() {
 
   const loadEmployees = async () => {
     if (!isOnline) return;
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/employees/`);
       const data = await response.json();
-      
+
       if (data.success) {
         setEmployees(data.employees);
       }
@@ -232,13 +232,13 @@ export default function App() {
 
   const formatRut = (rut: string): string => {
     const clean = rut.replace(/[^0-9kK]/g, '').toLowerCase();
-    
+
     if (clean.length === 0) return '';
     if (clean.length === 1) return clean;
-    
+
     const body = clean.slice(0, -1);
     const dv = clean.slice(-1);
-    
+
     let formattedBody = '';
     for (let i = 0; i < body.length; i++) {
       if (i > 0 && (body.length - i) % 3 === 0) {
@@ -246,54 +246,54 @@ export default function App() {
       }
       formattedBody += body[i];
     }
-    
+
     return `${formattedBody}-${dv}`;
   };
 
   const validateRut = (rut: string): boolean => {
-  const clean = rut.replace(/[^0-9kK]/g, '').toLowerCase();
-  
-  if (clean.length < 8 || clean.length > 9) return false;
-  
-  const body = clean.slice(0, -1);
-  const dv = clean.slice(-1);
-  
-  if (!/^\d+$/.test(body)) return false;
-  
-  let sum = 0;
-  let multiplier = 2;
-  
-  for (let i = body.length - 1; i >= 0; i--) {
-    sum += parseInt(body[i]) * multiplier;
-    multiplier = multiplier === 7 ? 2 : multiplier + 1;
-  }
-  
-  const remainder = sum % 11;
-  const calculatedDv = remainder === 0 ? '0' : remainder === 1 ? 'k' : (11 - remainder).toString();
-  
-  return dv === calculatedDv;
-};
+    const clean = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+
+    if (clean.length < 8 || clean.length > 9) return false;
+
+    const body = clean.slice(0, -1);
+    const dv = clean.slice(-1);
+
+    if (!/^\d+$/.test(body)) return false;
+
+    let sum = 0;
+    let multiplier = 2;
+
+    for (let i = body.length - 1; i >= 0; i--) {
+      sum += parseInt(body[i]) * multiplier;
+      multiplier = multiplier === 7 ? 2 : multiplier + 1;
+    }
+
+    const remainder = sum % 11;
+    const calculatedDv = remainder === 0 ? '0' : remainder === 1 ? 'K' : (11 - remainder).toString();
+
+    return dv === calculatedDv;
+  };
 
   const cleanRutForBackend = (rut: string): string => {
     const clean = rut.replace(/[^0-9kK]/g, '').toLowerCase();
     if (clean.length < 2) return clean;
-    
+
     const body = clean.slice(0, -1);
     const dv = clean.slice(-1).toUpperCase();
-    
+
     return `${body}-${dv}`;
   };
 
   const takePicture = async () => {
     if (!cameraRef.current) return;
-    
+
     let originalBrightness: number | null = null;
-    
+
     try {
       setIsLoading(true);
 
       const shouldUseScreenFlash = facing === 'front' && (
-        flashMode === 'on' || 
+        flashMode === 'on' ||
         (flashMode === 'auto' && (new Date().getHours() < 8 || new Date().getHours() > 18))
       );
       const shouldUseTorch = facing === 'back' && (
@@ -302,21 +302,21 @@ export default function App() {
       );
 
       if (shouldUseScreenFlash) {
-          const { status } = await Brightness.requestPermissionsAsync();
-          if (status === 'granted') {
-              originalBrightness = await Brightness.getBrightnessAsync();
-              await Brightness.setBrightnessAsync(1);
-              await new Promise(resolve => setTimeout(resolve, 400));
-          }
+        const { status } = await Brightness.requestPermissionsAsync();
+        if (status === 'granted') {
+          originalBrightness = await Brightness.getBrightnessAsync();
+          await Brightness.setBrightnessAsync(1);
+          await new Promise(resolve => setTimeout(resolve, 400));
+        }
       } else if (shouldUseTorch) {
-          setEnableTorch(true);
+        setEnableTorch(true);
       }
 
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.95,
         base64: true,
       });
-      
+
       if (originalBrightness !== null) {
         await Brightness.setBrightnessAsync(originalBrightness);
         originalBrightness = null;
@@ -326,23 +326,23 @@ export default function App() {
       if (!photo?.base64) {
         throw new Error('No se pudo capturar la foto');
       }
-      
+
       const manipulated = await ImageManipulator.manipulateAsync(
         photo.uri,
         [{ resize: { width: 1200 } }],
         { compress: 0.95, format: ImageManipulator.SaveFormat.JPEG, base64: true }
       );
-      
+
       const photoData = `data:image/jpeg;base64,${manipulated.base64}`;
 
       if (cameraMode === 'verify') {
-        setIsLoading(false); 
+        setIsLoading(false);
         setShowCamera(false);
         await verifyFaceWithTimeout(photoData, pendingType);
       } else if (cameraMode === 'register') {
         const newPhotos = [...capturedPhotos, photoData];
         setCapturedPhotos(newPhotos);
-        
+
         if (newPhotos.length >= PHOTOS_FOR_REGISTRATION) {
           setIsLoading(false);
           setShowCamera(false);
@@ -357,7 +357,7 @@ export default function App() {
         setIsConfirmingPhoto(true);
         setIsLoading(false);
       }
-      
+
     } catch (error) {
       console.error('Error capturando foto:', error);
       Alert.alert('❌ Error', 'No se pudo capturar la foto. Intenta nuevamente.');
@@ -395,19 +395,19 @@ export default function App() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         await loadEmployees();
         setNewEmployeeName('');
         setNewEmployeeRut('');
         setShowNewEmployeeModal(false);
-        
+
         Alert.alert(
-          '✅ Empleado Creado', 
+          '✅ Empleado Creado',
           `${data.employee.name} registrado exitosamente.\n\n¿Deseas registrar su rostro ahora?`,
           [
             { text: '⏭️ Después', style: 'cancel' },
-            { 
+            {
               text: '📸 Registrar Rostro',
               onPress: () => {
                 const employee = data.employee;
@@ -432,9 +432,9 @@ export default function App() {
       Alert.alert('❌ Error', 'Empleado no seleccionado');
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/register-face/`, {
         method: 'POST',
@@ -447,16 +447,16 @@ export default function App() {
 
       const data = await response.json();
       if (data.success) {
-        setEmployees(prev => prev.map(emp => 
-          emp.id === employee.id 
+        setEmployees(prev => prev.map(emp =>
+          emp.id === employee.id
             ? { ...emp, has_face_registered: true }
             : emp
         ));
-        
+
         if (selectedEmployee?.id === employee.id) {
           setSelectedEmployee({ ...employee, has_face_registered: true });
         }
-        
+
         Alert.alert('✅ ¡Registrado!', `Rostro de ${employee.name} registrado con ${data.photos_processed} fotos válidas`);
       } else {
         Alert.alert('❌ Error', data.message || 'Error registrando rostro');
@@ -484,7 +484,7 @@ export default function App() {
 
   const verifyFaceWithTimeout = async (photoData: string, type: 'entrada' | 'salida') => {
     const timestamp = new Date().toISOString();
-    
+
     if (!isOnline) {
       const record = {
         local_id: `offline_${Date.now()}`,
@@ -495,17 +495,17 @@ export default function App() {
         address: currentLocation,
         photo: photoData
       };
-      
+
       const updated = [...offlineRecords, record];
       setOfflineRecords(updated);
       await saveToStorage('offlineRecords', updated);
       Alert.alert('📱 Offline', `${type.toUpperCase()} guardada para sincronizar`);
       return;
     }
-    
+
     setVerificationInProgress(true);
     setTimeoutCounter(0);
-    
+
     const timeoutInterval = setInterval(() => {
       setTimeoutCounter(prev => prev + 1);
     }, 1000);
@@ -530,12 +530,12 @@ export default function App() {
 
     try {
       const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
-      
+
       clearInterval(timeoutInterval);
       setVerificationInProgress(false);
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         const newRecord: AttendanceRecord = {
           id: data.record.id,
@@ -548,25 +548,25 @@ export default function App() {
           is_offline_sync: false,
           face_confidence: parseFloat(data.verification?.confidence?.replace('%', '') || '0') / 100
         };
-        
+
         const updated = [newRecord, ...attendanceHistory].slice(0, 20);
         setAttendanceHistory(updated);
         await saveToStorage('attendanceHistory', updated);
-        
+
         Alert.alert(
-          '✅ ¡Verificado!', 
+          '✅ ¡Verificado!',
           `${type.toUpperCase()} - ${data.employee.name}\n🎯 ${data.verification?.confidence}`
         );
       } else {
         Alert.alert(
-          '❌ No Reconocido', 
+          '❌ No Reconocido',
           data.message || 'Rostro no encontrado en el sistema'
         );
       }
     } catch (error: any) {
       clearInterval(timeoutInterval);
       setVerificationInProgress(false);
-      
+
       if (error.message === 'TIMEOUT_EXCEEDED') {
         Alert.alert(
           '⏱️ Tiempo Excedido',
@@ -583,9 +583,9 @@ export default function App() {
       Alert.alert('❌ Error', 'Selecciona un empleado primero');
       return;
     }
-    
+
     const timestamp = new Date().toISOString();
-    
+
     if (!isOnline) {
       const record = {
         local_id: `offline_${Date.now()}`,
@@ -597,16 +597,16 @@ export default function App() {
         longitude: coordinates?.lng,
         address: currentLocation
       };
-      
+
       const updated = [...offlineRecords, record];
       setOfflineRecords(updated);
       await saveToStorage('offlineRecords', updated);
       Alert.alert('📱 Offline', `${type.toUpperCase()} guardada para sincronizar`);
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/mark-attendance/`, {
         method: 'POST',
@@ -621,9 +621,9 @@ export default function App() {
           address: currentLocation
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         const newRecord: AttendanceRecord = {
           id: data.record.id,
@@ -636,11 +636,11 @@ export default function App() {
           is_offline_sync: false,
           face_confidence: 0
         };
-        
+
         const updated = [newRecord, ...attendanceHistory].slice(0, 20);
         setAttendanceHistory(updated);
         await saveToStorage('attendanceHistory', updated);
-        
+
         Alert.alert('✅ Registrado', `${type.toUpperCase()} - ${selectedEmployee.name}`);
       } else {
         Alert.alert('❌ Error', data.message || 'Error registrando asistencia');
@@ -660,12 +660,12 @@ export default function App() {
 
   const handleQRCodeScanned = async ({ data }: { data: string }) => {
     if (isScanning || !isOnline) {
-        return;
+      return;
     }
-    
+
     setIsScanning(true);
     setIsLoading(true);
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/verify-qr/`, {
         method: 'POST',
@@ -678,9 +678,9 @@ export default function App() {
           address: currentLocation
         })
       });
-      
+
       const result = await response.json();
-      
+
       if (result.success) {
         const newRecord: AttendanceRecord = {
           id: result.record.id,
@@ -693,13 +693,13 @@ export default function App() {
           is_offline_sync: false,
           face_confidence: 0
         };
-        
+
         const updated = [newRecord, ...attendanceHistory].slice(0, 20);
         setAttendanceHistory(updated);
         await saveToStorage('attendanceHistory', updated);
-        
+
         Alert.alert(
-          '✅ ¡Código QR Verificado!', 
+          '✅ ¡Código QR Verificado!',
           `${pendingType.toUpperCase()} - ${result.employee.name}\n🆔 RUT: ${result.employee.rut}`
         );
       } else {
@@ -729,9 +729,9 @@ export default function App() {
               const response = await fetch(`${API_BASE_URL}/delete-employee/${employee.id}/`, {
                 method: 'DELETE'
               });
-              
+
               const data = await response.json();
-              
+
               if (data.success) {
                 setEmployees(prev => prev.filter(e => e.id !== employee.id));
                 if (selectedEmployee?.id === employee.id) {
@@ -769,7 +769,7 @@ export default function App() {
         await saveToStorage('offlineRecords', []);
         setOfflineRecords([]);
         Alert.alert('✅ Sincronizado', `${data.synced_count} registros sincronizados`);
-        
+
         // Mapea los registros sincronizados para que coincidan con la interfaz de `AttendanceRecord`
         const newHistoryItems = syncedRecords.map(record => ({
           id: record.local_id, // Usamos el ID local temporalmente
@@ -779,13 +779,13 @@ export default function App() {
           location_lat: record.latitude,
           location_lng: record.longitude,
           address: record.address,
-          is_offline_sync: true, 
+          is_offline_sync: true,
           face_confidence: record.photo ? 0.75 : 0 // Asigna una confianza si es una foto
         }));
 
         // Actualiza el historial local de inmediato
         setAttendanceHistory(prev => [...newHistoryItems, ...prev].slice(0, 20));
-        
+
         // Vuelve a cargar los datos del servidor para obtener los IDs correctos y el historial completo
         await loadEmployees();
         await fetchAttendanceRecordsFromServer();
@@ -808,7 +808,7 @@ export default function App() {
 
       if (recordsToSync.length > 0) {
         console.log(`🔎 Se encontraron ${recordsToSync.length} registros offline. Intentando sincronizar...`);
-        
+
         const response = await fetch(`${API_BASE_URL}/sync-offline/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -856,7 +856,7 @@ export default function App() {
     setEditedRut(employee.rut);
     setShowEditProfileModal(true);
   };
-  
+
   const handleEditProfile = async () => {
     if (!employeeToEdit || !isOnline || isLoading) return;
 
@@ -864,7 +864,7 @@ export default function App() {
       Alert.alert('❌ Error', 'RUT inválido');
       return;
     }
-    
+
     setIsLoading(true);
 
     const body: { rut?: string; photo_data?: string } = {};
@@ -899,7 +899,7 @@ export default function App() {
           setSelectedEmployee(updatedEmployee);
           await saveToStorage('selectedEmployee', updatedEmployee);
         }
-        
+
         Alert.alert('✅ Éxito', `Perfil de ${employeeToEdit.name} actualizado`);
         setShowEditProfileModal(false);
         setNewProfilePhoto(null);
@@ -926,10 +926,10 @@ export default function App() {
       'on': '💡',
       'auto': '⚡'
     };
-    
+
     const flashIsActive = enableTorch;
     const flashStatus = flashMode.toUpperCase();
-    
+
     return (
       <TouchableOpacity
         style={[styles.flashButton, flashIsActive && styles.flashButtonActive]}
@@ -950,7 +950,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="auto" />
-      
+
       <View style={styles.header}>
         <Text style={styles.title}>📱 Asistencia Pro</Text>
         <Text style={[styles.status, !isOnline && styles.offline]}>
@@ -959,13 +959,13 @@ export default function App() {
         </Text>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.content}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.card}
           onPress={() => setShowEmployeeModal(true)}
         >
@@ -977,7 +977,7 @@ export default function App() {
             <Text style={styles.registered}>✅ Reconocimiento facial activo</Text>
           )}
           {selectedEmployee && !selectedEmployee.has_face_registered && (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.registerFaceButton}
               onPress={() => {
                 setPendingEmployee(selectedEmployee);
@@ -997,435 +997,454 @@ export default function App() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📝 Marcado Manual</Text>
           <View style={styles.buttonRow}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.button, styles.entrada]}
               onPress={() => markManual('entrada')}
               disabled={!selectedEmployee || isLoading || verificationInProgress}
             >
               <Text style={styles.buttonText}>🟢 ENTRADA</Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={[styles.button, styles.salida]}
               onPress={() => markManual('salida')}
-             disabled={!selectedEmployee || isLoading || verificationInProgress}
-           >
-             <Text style={styles.buttonText}>🔴 SALIDA</Text>
-           </TouchableOpacity>
-         </View>
-       </View>
-
-       <View style={styles.section}>
-         <Text style={styles.sectionTitle}>🔍 Reconocimiento Facial</Text>
-         <View style={styles.buttonRow}>
-           <TouchableOpacity 
-             style={[styles.button, styles.facial]}
-             onPress={() => {
-               setPendingType('entrada');
-               setCameraMode('verify');
-               setShowCamera(true);
-             }}
-             disabled={isLoading || verificationInProgress}
-           >
-             <Text style={styles.buttonText}>
-               {verificationInProgress && pendingType === 'entrada' ? 
-                 `⏱️ ${timeoutCounter}s` : '🔍 ENTRADA'}
-             </Text>
-           </TouchableOpacity>
-           
-           <TouchableOpacity 
-             style={[styles.button, styles.salida]}
-             onPress={() => {
-               setPendingType('salida');
-               setCameraMode('verify');
-               setShowCamera(true);
-             }}
-             disabled={isLoading || verificationInProgress}
-           >
-             <Text style={styles.buttonText}>
-               {verificationInProgress && pendingType === 'salida' ? 
-                 `⏱️ ${timeoutCounter}s` : '🔍 SALIDA'}
-             </Text>
-           </TouchableOpacity>
-         </View>
-       </View>
-
-       <View style={styles.section}>
-         <Text style={styles.sectionTitle}>🆔 Código QR</Text>
-         <View style={styles.buttonRow}>
-           <TouchableOpacity 
-             style={[styles.button, styles.qr]}
-             onPress={() => markAttendanceQR('entrada')}
-             disabled={isLoading || verificationInProgress || !isOnline}
-           >
-             <Text style={styles.buttonText}>📱 QR ENTRADA</Text>
-           </TouchableOpacity>
-           
-           <TouchableOpacity 
-             style={[styles.button, styles.qr]}
-             onPress={() => markAttendanceQR('salida')}
-             disabled={isLoading || verificationInProgress || !isOnline}
-           >
-             <Text style={styles.buttonText}>📱 QR SALIDA</Text>
-           </TouchableOpacity>
-         </View>
-       </View>
-
-       {offlineRecords.length > 0 && isOnline && (
-         <TouchableOpacity 
-           style={styles.syncButton} 
-           onPress={syncOfflineRecords}
-         >
-           <Text style={styles.syncText}>
-             🔄 Sincronizar {offlineRecords.length} registros
-           </Text>
-         </TouchableOpacity>
-       )}
-
-       <View style={styles.history}>
-         <Text style={styles.historyTitle}>📋 Registros Recientes</Text>
-         {attendanceHistory.slice(0, 10).map((record, index) => (
-           <View key={record.id || index} style={styles.historyItem}>
-             <Text style={styles.historyText}>
-               {record.employee_name} - {record.attendance_type.toUpperCase()}
-             </Text>
-             <Text style={styles.historyTime}>
-               {new Date(record.timestamp).toLocaleString('es-CL')}
-               {record.face_confidence && record.face_confidence > 0 && ` 🔍 ${(record.face_confidence * 100).toFixed(0)}%`}
-             </Text>
-           </View>
-         ))}
-         {attendanceHistory.length === 0 && (
-           <Text style={styles.emptyText}>Sin registros recientes</Text>
-         )}
-       </View>
-     </ScrollView>
-
-     {isLoading && (
-       <View style={styles.loading}>
-         <ActivityIndicator size="large" color="#007AFF" />
-         <Text style={styles.loadingText}>Procesando...</Text>
-       </View>
-     )}
-
-     <Modal visible={showCamera} animationType="slide">
-       <View style={styles.cameraContainer}>
-         {cameraMode === 'qr' ? (
-           <BarCodeScanner
-             onBarCodeScanned={handleQRCodeScanned}
-             style={styles.camera}
-           >
-             <View style={styles.cameraOverlay}>
-               <TouchableOpacity 
-                 style={styles.closeCamera} 
-                 onPress={() => {
-                   setShowCamera(false);
-                   setCameraMode(null);
-                 }}
-               >
-                 <Text style={styles.closeCameraText}>✕</Text>
-               </TouchableOpacity>
-               
-               <View style={styles.qrFrame} />
-               
-               <View style={styles.cameraInfo}>
-                 <Text style={styles.qrTitle}>📱 Escanear QR</Text>
-               </View>
-             </View>
-           </BarCodeScanner>
-         ) : (
-           <CameraView
-             ref={cameraRef}
-             style={styles.camera}
-             facing={facing}
-             enableTorch={enableTorch}
-           >
-             <View style={styles.cameraOverlay}>
-               <TouchableOpacity 
-                 style={styles.closeCamera} 
-                 onPress={() => {
-                   setShowCamera(false);
-                   setCameraMode(null);
-                   setCapturedPhotos([]);
-                   setCurrentPhotoIndex(0);
-                 }}
-               >
-                 <Text style={styles.closeCameraText}>✕</Text>
-               </TouchableOpacity>
-               
-               {renderFlashButton()}
-
-               <View style={styles.faceFrame} />
-               
-               {cameraMode === 'register' && (
-                 <View style={styles.cameraInfo}>
-                   <Text style={styles.photoCounter}>
-                     Foto {currentPhotoIndex + 1} de {PHOTOS_FOR_REGISTRATION}
-                   </Text>
-                   <Text style={styles.photoGuide}>
-                     {photoInstructions[currentPhotoIndex] || 'Posiciona tu rostro'}
-                   </Text>
-                 </View>
-               )}
-
-               {cameraMode === 'verify' && (
-                 <View style={styles.cameraInfo}>
-                   <Text style={styles.verifyTitle}>🔍 Verificación</Text>
-                 </View>
-               )}
-               
-               <View style={styles.cameraControls}>
-                 <TouchableOpacity 
-                   style={styles.flipButton}
-                   onPress={() => setFacing(facing === 'back' ? 'front' : 'back')}
-                 >
-                   <Text style={styles.controlText}>🔄</Text>
-                 </TouchableOpacity>
-                 
-                 <TouchableOpacity 
-                   style={styles.captureButton} 
-                   onPress={takePicture}
-                   disabled={isLoading}
-                 >
-                   <Text style={styles.captureText}>
-                     {isLoading ? '⏳' : '📸'}
-                   </Text>
-                 </TouchableOpacity>
-                 
-                 <View style={styles.placeholder} />
-               </View>
-             </View>
-           </CameraView>
-         )}
-       </View>
-     </Modal>
-
-     <Modal visible={isConfirmingPhoto} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modal}>
-          <Text style={styles.modalTitle}>¿Te gusta la foto?</Text>
-          {newProfilePhoto && (
-            <Image source={{ uri: newProfilePhoto }} style={styles.confirmPhotoPreview} />
-          )}
-          <View style={styles.modalButtons}>
-            <TouchableOpacity 
-              style={[styles.modalButton, {backgroundColor: '#27ae60'}]}
-              onPress={() => {
-                setIsConfirmingPhoto(false);
-                setShowEditProfileModal(true);
-              }}
+              disabled={!selectedEmployee || isLoading || verificationInProgress}
             >
-              <Text style={styles.buttonText}>✅ Aceptar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.modalButton, styles.modalButtonSecondary]}
-              onPress={() => {
-                setNewProfilePhoto(null);
-                setIsConfirmingPhoto(false);
-                setShowEditProfileModal(true);
-              }}
-            >
-              <Text style={styles.buttonText}>❌ Volver a tomar</Text>
+              <Text style={styles.buttonText}>🔴 SALIDA</Text>
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </Modal>
 
-     <Modal visible={showEmployeeModal} transparent animationType="fade">
-       <View style={styles.modalOverlay}>
-         <View style={styles.modal}>
-           <Text style={styles.modalTitle}>👥 Empleados</Text>
-           
-           <ScrollView style={styles.employeeList}>
-             {employees.map((emp) => (
-               <View key={emp.id} style={styles.employeeItem}>
-                 <TouchableOpacity
-                   style={styles.employeeInfo}
-                   onPress={async () => {
-                     setSelectedEmployee(emp);
-                     await saveToStorage('selectedEmployee', emp);
-                     setShowEmployeeModal(false);
-                   }}
-                 >
-                   <Text style={styles.employeeName}>
-                     {emp.name}
-                     {emp.has_face_registered && ' 📸'}
-                   </Text>
-                   <Text style={styles.employeeId}>{emp.employee_id} - {emp.rut}</Text>
-                 </TouchableOpacity>
-                 
-                 <TouchableOpacity onPress={() => openEditProfileModal(emp)}>
-                    <Text style={styles.editText}>✏️</Text>
-                 </TouchableOpacity>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🔍 Reconocimiento Facial</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.button, styles.facial]}
+              onPress={() => {
+                setPendingType('entrada');
+                setCameraMode('verify');
+                setShowCamera(true);
+              }}
+              disabled={isLoading || verificationInProgress}
+            >
+              <Text style={styles.buttonText}>
+                {verificationInProgress && pendingType === 'entrada' ?
+                  `⏱️ ${timeoutCounter}s` : '🔍 ENTRADA'}
+              </Text>
+            </TouchableOpacity>
 
-                 <TouchableOpacity onPress={() => deleteEmployee(emp)}>
-                   <Text style={styles.deleteText}>🗑️</Text>
-                 </TouchableOpacity>
-               </View>
-             ))}
-           </ScrollView>
-           
-           <View style={styles.modalButtons}>
-             <TouchableOpacity 
-               style={styles.modalButton}
-               onPress={() => {
-                 setShowEmployeeModal(false);
-                 setShowNewEmployeeModal(true);
-               }}
-             >
-               <Text style={styles.buttonText}>➕ Nuevo</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity 
-               style={[styles.modalButton, styles.modalButtonSecondary]}
-               onPress={() => setShowEmployeeModal(false)}
-             >
-               <Text style={styles.buttonText}>✕ Cerrar</Text>
-             </TouchableOpacity>
-           </View>
-         </View>
-       </View>
-     </Modal>
+            <TouchableOpacity
+              style={[styles.button, styles.salida]}
+              onPress={() => {
+                setPendingType('salida');
+                setCameraMode('verify');
+                setShowCamera(true);
+              }}
+              disabled={isLoading || verificationInProgress}
+            >
+              <Text style={styles.buttonText}>
+                {verificationInProgress && pendingType === 'salida' ?
+                  `⏱️ ${timeoutCounter}s` : '🔍 SALIDA'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-     <Modal visible={showNewEmployeeModal} transparent animationType="fade">
-       <View style={styles.modalOverlay}>
-         <View style={styles.modal}>
-           <Text style={styles.modalTitle}>➕ Nuevo Empleado</Text>
-           
-           <TextInput
-             style={styles.input}
-             placeholder="Nombre completo"
-             value={newEmployeeName}
-             onChangeText={setNewEmployeeName}
-             editable={!creatingEmployee}
-           />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🆔 Código QR</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.button, styles.qr]}
+              onPress={() => markAttendanceQR('entrada')}
+              disabled={isLoading || verificationInProgress || !isOnline}
+            >
+              <Text style={styles.buttonText}>📱 QR ENTRADA</Text>
+            </TouchableOpacity>
 
-           <TextInput
-             style={styles.input}
-             placeholder="RUT (ej: 12345678-9)"
-             value={formatRut(newEmployeeRut)}
-             onChangeText={(text) => setNewEmployeeRut(text.replace(/[^0-9kK.-]/g, ''))}
-             editable={!creatingEmployee}
-             maxLength={12}
-           />
-           
-           <View style={styles.modalButtons}>
-             <TouchableOpacity 
-               style={[styles.modalButton, (!newEmployeeName.trim() || !newEmployeeRut.trim() || !validateRut(newEmployeeRut) || creatingEmployee) && styles.modalButtonDisabled]} 
-               onPress={createEmployeeBasic}
-               disabled={!newEmployeeName.trim() || !newEmployeeRut.trim() || !validateRut(newEmployeeRut) || creatingEmployee}
-             >
-               <Text style={styles.buttonText}>
-                 {creatingEmployee ? '⏳ Creando...' : '✅ Crear'}
-               </Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity 
-               style={[styles.modalButton, styles.modalButtonSecondary]}
-               onPress={() => {
-                 setShowNewEmployeeModal(false);
-                 setNewEmployeeName('');
-                 setNewEmployeeRut('');
-               }}
-               disabled={creatingEmployee}
-             >
-               <Text style={styles.buttonText}>✕ Cancelar</Text>
-             </TouchableOpacity>
-           </View>
-           
-           {newEmployeeRut && !validateRut(newEmployeeRut) && (
-             <Text style={styles.errorText}>❌ RUT inválido</Text>
-           )}
-         </View>
-       </View>
-     </Modal>
+            <TouchableOpacity
+              style={[styles.button, styles.qr]}
+              onPress={() => markAttendanceQR('salida')}
+              disabled={isLoading || verificationInProgress || !isOnline}
+            >
+              <Text style={styles.buttonText}>📱 QR SALIDA</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-     <Modal visible={showFaceRegisterModal} transparent animationType="fade">
-       <View style={styles.modalOverlay}>
-         <View style={styles.modal}>
-           <Text style={styles.modalTitle}>📸 Registro Facial</Text>
-           
-           <Text style={styles.modalText}>
-             ¿Registrar rostro de {pendingEmployee?.name}?
-           </Text>
-           <Text style={styles.modalSubText}>
-             Se tomarán {PHOTOS_FOR_REGISTRATION} fotos con diferentes expresiones
-           </Text>
-           
-           <View style={styles.modalButtons}>
-             <TouchableOpacity 
-               style={styles.modalButton}
-               onPress={() => startFaceRegistration(pendingEmployee!)}
-             >
-               <Text style={styles.buttonText}>📸 Comenzar</Text>
-             </TouchableOpacity>
-             
-             <TouchableOpacity 
-               style={[styles.modalButton, styles.modalButtonSecondary]}
-               onPress={() => {
-                 setShowFaceRegisterModal(false);
-                 setPendingEmployee(null);
-               }}
-             >
-               <Text style={styles.buttonText}>⏭️ Después</Text>
-             </TouchableOpacity>
-           </View>
-         </View>
-       </View>
-     </Modal>
+        {offlineRecords.length > 0 && isOnline && (
+          <TouchableOpacity
+            style={styles.syncButton}
+            onPress={syncOfflineRecords}
+          >
+            <Text style={styles.syncText}>
+              🔄 Sincronizar {offlineRecords.length} registros
+            </Text>
+          </TouchableOpacity>
+        )}
 
-    <Modal visible={showEditProfileModal} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modal}>
-          <Text style={styles.modalTitle}>✏️ Editar Perfil</Text>
-          {employeeToEdit && (
-            <View>
-              <Text style={styles.label}>Nombre: {employeeToEdit.name}</Text>
-              
-              <Text style={styles.label}>Nuevo RUT:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="RUT"
-                value={formatRut(editedRut)}
-                onChangeText={(text) => setEditedRut(text.replace(/[^0-9kK.-]/g, ''))}
-                maxLength={12}
-              />
-              
-              <Text style={styles.label}>Foto de Perfil:</Text>
-              {newProfilePhoto ? (
-                <View style={styles.photoPreviewContainer}>
-                  <Image source={{ uri: newProfilePhoto }} style={styles.photoPreview} />
-                  <Text style={styles.photoPreviewText}>Foto lista para guardar.</Text>
-                </View>
-              ) : (
-                <TouchableOpacity style={styles.takePhotoButton} onPress={startProfilePhotoCapture}>
-                  <Text style={styles.takePhotoText}>📸 Tomar nueva foto</Text>
-                </TouchableOpacity>
-              )}
-              
-              <View style={styles.modalButtons}>
-                <TouchableOpacity 
-                  style={[styles.modalButton, styles.entrada, isLoading && styles.modalButtonDisabled]}
-                  onPress={handleEditProfile}
-                  disabled={isLoading}
-                >
-                  <Text style={styles.buttonText}>✅ Guardar Cambios</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[styles.modalButton, styles.modalButtonSecondary]}
-                  onPress={() => setShowEditProfileModal(false)}
-                >
-                  <Text style={styles.buttonText}>✕ Cancelar</Text>
-                </TouchableOpacity>
-              </View>
+        <View style={styles.history}>
+          <Text style={styles.historyTitle}>📋 Registros Recientes</Text>
+          {attendanceHistory.slice(0, 10).map((record, index) => (
+            <View key={record.id || index} style={styles.historyItem}>
+              <Text style={styles.historyText}>
+                {record.employee_name} - {record.attendance_type.toUpperCase()}
+              </Text>
+              <Text style={styles.historyTime}>
+                {new Date(record.timestamp).toLocaleString('es-CL')}
+                {record.face_confidence && record.face_confidence > 0 && ` 🔍 ${(record.face_confidence * 100).toFixed(0)}%`}
+              </Text>
             </View>
+          ))}
+          {attendanceHistory.length === 0 && (
+            <Text style={styles.emptyText}>Sin registros recientes</Text>
           )}
         </View>
-      </View>
-    </Modal>
-   </SafeAreaView>
- );
+      </ScrollView>
+
+      {isLoading && (
+        <View style={styles.loading}>
+          <ActivityIndicator size="large" color="#007AFF" />
+          <Text style={styles.loadingText}>Procesando...</Text>
+        </View>
+      )}
+
+      <Modal visible={showCamera} animationType="slide">
+        <View style={styles.cameraContainer}>
+          {cameraMode === 'qr' ? (
+            <BarCodeScanner
+              onBarCodeScanned={handleQRCodeScanned}
+              style={styles.camera}
+            >
+              <View style={styles.cameraOverlay}>
+                <TouchableOpacity
+                  style={styles.closeCamera}
+                  onPress={() => {
+                    setShowCamera(false);
+                    setCameraMode(null);
+                  }}
+                >
+                  <Text style={styles.closeCameraText}>✕</Text>
+                </TouchableOpacity>
+
+                <View style={styles.qrFrame} />
+
+                <View style={styles.cameraInfo}>
+                  <Text style={styles.qrTitle}>📱 Escanear QR</Text>
+                </View>
+              </View>
+            </BarCodeScanner>
+          ) : (
+            <CameraView
+              ref={cameraRef}
+              style={styles.camera}
+              facing={facing}
+              enableTorch={enableTorch}
+            >
+              <View style={styles.cameraOverlay}>
+                <TouchableOpacity
+                  style={styles.closeCamera}
+                  onPress={() => {
+                    setShowCamera(false);
+                    setCameraMode(null);
+                    setCapturedPhotos([]);
+                    setCurrentPhotoIndex(0);
+                  }}
+                >
+                  <Text style={styles.closeCameraText}>✕</Text>
+                </TouchableOpacity>
+
+                {renderFlashButton()}
+
+                <View style={styles.faceFrame} />
+
+                {cameraMode === 'register' && (
+                  <View style={styles.cameraInfo}>
+                    <Text style={styles.photoCounter}>
+                      Foto {currentPhotoIndex + 1} de {PHOTOS_FOR_REGISTRATION}
+                    </Text>
+                    <Text style={styles.photoGuide}>
+                      {photoInstructions[currentPhotoIndex] || 'Posiciona tu rostro'}
+                    </Text>
+                  </View>
+                )}
+
+                {cameraMode === 'verify' && (
+                  <View style={styles.cameraInfo}>
+                    <Text style={styles.verifyTitle}>🔍 Verificación</Text>
+                  </View>
+                )}
+
+                <View style={styles.cameraControls}>
+                  <TouchableOpacity
+                    style={styles.flipButton}
+                    onPress={() => setFacing(facing === 'back' ? 'front' : 'back')}
+                  >
+                    <Text style={styles.controlText}>🔄</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={styles.captureButton}
+                    onPress={takePicture}
+                    disabled={isLoading}
+                  >
+                    <Text style={styles.captureText}>
+                      {isLoading ? '⏳' : '📸'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <View style={styles.placeholder} />
+                </View>
+              </View>
+            </CameraView>
+          )}
+        </View>
+      </Modal>
+
+      <Modal visible={isConfirmingPhoto} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>¿Te gusta la foto?</Text>
+            {newProfilePhoto && (
+              <Image source={{ uri: newProfilePhoto }} style={styles.confirmPhotoPreview} />
+            )}
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, { backgroundColor: '#27ae60' }]}
+                onPress={() => {
+                  setIsConfirmingPhoto(false);
+                  setShowEditProfileModal(true);
+                }}
+              >
+                <Text style={styles.buttonText}>✅ Aceptar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={() => {
+                  setNewProfilePhoto(null);
+                  setIsConfirmingPhoto(false);
+                  setShowEditProfileModal(true);
+                }}
+              >
+                <Text style={styles.buttonText}>❌ Volver a tomar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showEmployeeModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>👥 Empleados</Text>
+
+            <ScrollView style={styles.employeeList}>
+              {employees.map((emp) => (
+                <View key={emp.id} style={styles.employeeItem}>
+                  <TouchableOpacity
+                    style={styles.employeeInfo}
+                    onPress={async () => {
+                      setSelectedEmployee(emp);
+                      await saveToStorage('selectedEmployee', emp);
+                      setShowEmployeeModal(false);
+                    }}
+                  >
+                    <Text style={styles.employeeName}>
+                      {emp.name}
+                      {emp.has_face_registered && ' 📸'}
+                    </Text>
+                    <Text style={styles.employeeId}>{emp.employee_id} - {emp.rut}</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => openEditProfileModal(emp)}>
+                    <Text style={styles.editText}>✏️</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => deleteEmployee(emp)}>
+                    <Text style={styles.deleteText}>🗑️</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => {
+                  setShowEmployeeModal(false);
+                  setShowNewEmployeeModal(true);
+                }}
+              >
+                <Text style={styles.buttonText}>➕ Nuevo</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={() => setShowEmployeeModal(false)}
+              >
+                <Text style={styles.buttonText}>✕ Cerrar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showNewEmployeeModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>➕ Nuevo Empleado</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre completo"
+              value={newEmployeeName}
+              onChangeText={setNewEmployeeName}
+              editable={!creatingEmployee}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="RUT (ej: 12345678-9)"
+              value={formatRut(newEmployeeRut)}
+              onChangeText={(text) => {
+                // Solo permitir números, K, k y guión
+                const cleaned = text.replace(/[^0-9kK-]/g, '');
+                // Limitar a máximo 9 dígitos + 1 dígito verificador
+                const rutBody = cleaned.replace(/[^0-9]/g, '');
+                if (rutBody.length <= 9) {
+                  setNewEmployeeRut(cleaned);
+                }
+              }}
+              editable={!creatingEmployee}
+              maxLength={12}
+              keyboardType="numeric"
+            />
+
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={[styles.modalButton, (!newEmployeeName.trim() || !newEmployeeRut.trim() || !validateRut(newEmployeeRut) || creatingEmployee) && styles.modalButtonDisabled]}
+                onPress={createEmployeeBasic}
+                disabled={!newEmployeeName.trim() || !newEmployeeRut.trim() || !validateRut(newEmployeeRut) || creatingEmployee}
+              >
+                <Text style={styles.buttonText}>
+                  {creatingEmployee ? '⏳ Creando...' : '✅ Crear'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={() => {
+                  setShowNewEmployeeModal(false);
+                  setNewEmployeeName('');
+                  setNewEmployeeRut('');
+                }}
+                disabled={creatingEmployee}
+              >
+                <Text style={styles.buttonText}>✕ Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+
+            {newEmployeeRut && !validateRut(newEmployeeRut) && (
+              <Text style={styles.errorText}>❌ RUT inválido</Text>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showFaceRegisterModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>📸 Registro Facial</Text>
+
+            <Text style={styles.modalText}>
+              ¿Registrar rostro de {pendingEmployee?.name}?
+            </Text>
+            <Text style={styles.modalSubText}>
+              Se tomarán {PHOTOS_FOR_REGISTRATION} fotos con diferentes expresiones
+            </Text>
+
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => startFaceRegistration(pendingEmployee!)}
+              >
+                <Text style={styles.buttonText}>📸 Comenzar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.modalButtonSecondary]}
+                onPress={() => {
+                  setShowFaceRegisterModal(false);
+                  setPendingEmployee(null);
+                }}
+              >
+                <Text style={styles.buttonText}>⏭️ Después</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={showEditProfileModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modal}>
+            <Text style={styles.modalTitle}>✏️ Editar Perfil</Text>
+            {employeeToEdit && (
+              <View>
+                <Text style={styles.label}>Nombre: {employeeToEdit.name}</Text>
+
+                <Text style={styles.label}>Nuevo RUT:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="RUT"
+                  value={formatRut(editedRut)}
+                  onChangeText={(text) => {
+                    // Solo permitir números, K, k y guión
+                    const cleaned = text.replace(/[^0-9kK-]/g, '');
+                    // Limitar a máximo 9 dígitos + 1 dígito verificador
+                    const rutBody = cleaned.replace(/[^0-9]/g, '');
+                    if (rutBody.length <= 9) {
+                      setEditedRut(cleaned);
+                    }
+                  }}
+                  maxLength={12}
+                  keyboardType="numeric"
+                />
+
+                <Text style={styles.label}>Foto de Perfil:</Text>
+                {newProfilePhoto ? (
+                  <View style={styles.photoPreviewContainer}>
+                    <Image source={{ uri: newProfilePhoto }} style={styles.photoPreview} />
+                    <Text style={styles.photoPreviewText}>Foto lista para guardar.</Text>
+                  </View>
+                ) : (
+                  <TouchableOpacity style={styles.takePhotoButton} onPress={startProfilePhotoCapture}>
+                    <Text style={styles.takePhotoText}>📸 Tomar nueva foto</Text>
+                  </TouchableOpacity>
+                )}
+
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.entrada, isLoading && styles.modalButtonDisabled]}
+                    onPress={handleEditProfile}
+                    disabled={isLoading}
+                  >
+                    <Text style={styles.buttonText}>✅ Guardar Cambios</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalButton, styles.modalButtonSecondary]}
+                    onPress={() => setShowEditProfileModal(false)}
+                  >
+                    <Text style={styles.buttonText}>✕ Cancelar</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
