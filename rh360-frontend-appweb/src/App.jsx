@@ -10,7 +10,7 @@ import contadorSound from './assets/contador.mp3';
 
 
 // Configuración del backend
-const API_BASE_URL = 'https://247f0bcafed1.ngrok-free.app';
+const API_BASE_URL = 'https://1248d30fcc0b.ngrok-free.app';
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
@@ -48,12 +48,8 @@ const App = () => {
     const [countdown, setCountdown] = useState(null);
     const [showConfirmation, setShowConfirmation] = useState(false);
     
-    // Nuevos estados para la funcionalidad de actualizar perfil
-    const [showUpdateProfileModal, setShowUpdateProfileModal] = useState(false);
-    const [employees, setEmployees] = useState([]);
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
-    const [newRut, setNewRut] = useState('');
-    const [newProfilePhoto, setNewProfilePhoto] = useState(null);
+    // Estado para guardar la foto capturada durante el reconocimiento
+    const [capturedPhoto, setCapturedPhoto] = useState(null);
 
     const videoRef = useRef(null);
     const cameraViewRef = useRef(null);
@@ -172,6 +168,7 @@ const App = () => {
         setCurrentProcess(null);
         setCountdown(null);
         setShowConfirmation(false);
+        setCapturedPhoto(null);
     };
 
     // Iniciar proceso de marcado
@@ -212,6 +209,9 @@ const App = () => {
 
             // Convertir a base64
             const imageData = canvas.toDataURL('image/jpeg', 0.85);
+            
+            // Guardar la foto capturada para mostrarla en la confirmación
+            setCapturedPhoto(imageData);
 
             // Enviar al servidor
             const response = await fetch(`${API_BASE_URL}/api/verify-face/`, {
@@ -340,97 +340,6 @@ const App = () => {
         setRecognizedPerson(null);
     };
 
-    // Funciones para actualizar perfil
-    const fetchEmployees = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/employees/`, {
-                headers: NGROK_HEADERS
-            });
-            const data = await response.json();
-            if (data.success) {
-                setEmployees(data.employees);
-            }
-        } catch (error) {
-            console.error('Error fetching employees:', error);
-        }
-    };
-
-    const handleUpdateProfile = async () => {
-        if (!selectedEmployeeId || processing) return;
-
-        setLoading(true);
-        setProcessing(true);
-
-        const formData = new FormData();
-        if (newRut) {
-            formData.append('rut', newRut);
-        }
-        if (newProfilePhoto) {
-            // Convertir la foto a un formato que el backend pueda manejar
-            const photoData = newProfilePhoto; 
-            formData.append('photo_data', photoData);
-        }
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/update-employee-profile/${selectedEmployeeId}/`, {
-                method: 'POST',
-                headers: {
-                    ...NGROK_HEADERS,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    rut: newRut,
-                    photo_data: newProfilePhoto
-                })
-            });
-
-            const data = await response.json();
-            if (response.ok && data.success) {
-                showMessage('✅ Perfil actualizado exitosamente', 'success');
-                setShowUpdateProfileModal(false);
-                setSelectedEmployeeId('');
-                setNewRut('');
-                setNewProfilePhoto(null);
-            } else {
-                showMessage(`❌ Error: ${data.message}`, 'error');
-            }
-        } catch (error) {
-            showMessage('❌ Error de conexión al actualizar el perfil.', 'error');
-            console.error(error);
-        } finally {
-            setLoading(false);
-            setProcessing(false);
-        }
-    };
-
-    const openUpdateProfileModal = async () => {
-        await fetchEmployees();
-        setCameraActive(true); // Activa la cámara en el modal de perfil
-        setShowUpdateProfileModal(true);
-    };
-
-    const takeProfilePhoto = async () => {
-        if (!videoRef.current) return;
-        setProcessing(true);
-        
-        try {
-            const canvas = document.createElement('canvas');
-            canvas.width = videoRef.current.videoWidth;
-            canvas.height = videoRef.current.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-            const imageData = canvas.toDataURL('image/jpeg');
-            setNewProfilePhoto(imageData);
-            showMessage('✅ Foto de perfil tomada y lista para guardar.', 'success');
-        } catch (error) {
-            showMessage('❌ Error al tomar la foto.', 'error');
-            console.error(error);
-        } finally {
-            setProcessing(false);
-        }
-    };
-
-
     return (
         <div className="min-h-screen bg-gradient-to-br flex flex-col">
             {/* Header corporativo */}
@@ -466,7 +375,7 @@ const App = () => {
                 <div className="main-area">
                     <div className="content-container">
                         {/* Vista principal - Sin cámara activa */}
-                        {!cameraActive && !showManualLoginModal && !showUpdateProfileModal && (
+                        {!cameraActive && !showManualLoginModal && (
                             <div className="main-view">
                                 <div className="main-card">
                                     <div className="main-header">
@@ -518,18 +427,6 @@ const App = () => {
                                                 Registrar salida
                                             </div>
                                         </button>
-                                        <button
-                                            onClick={openUpdateProfileModal}
-                                            disabled={systemStatus !== 'online'}
-                                            className="main-button"
-                                            style={{ backgroundColor: '#2c3e50', color: 'white' }}
-                                        >
-                                            <span className="button-icon">👤</span>
-                                            <div className="button-title">ACTUALIZAR PERFIL</div>
-                                            <div className="button-desc">
-                                                Actualizar RUT o foto de perfil
-                                            </div>
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -561,35 +458,6 @@ const App = () => {
                                         playsInline
                                         muted
                                     />
-                                </div>
-                            </div>
-                        )}
-                        {cameraActive && showUpdateProfileModal && (
-                            <div className="camera-view">
-                                <div className="camera-header">
-                                    <h2 className="camera-title">Tomar Foto de Perfil</h2>
-                                    <p className="camera-subtitle">
-                                        Mira a la cámara, mantén una expresión neutral.
-                                    </p>
-                                </div>
-                                <div className="camera-container">
-                                    <video
-                                        ref={videoRef}
-                                        className="camera-video"
-                                        autoPlay
-                                        playsInline
-                                        muted
-                                    />
-                                </div>
-                                <div className="control-buttons" style={{ justifyContent: 'center' }}>
-                                    <button
-                                        onClick={takeProfilePhoto}
-                                        disabled={processing}
-                                        className="control-button button-capture"
-                                        style={{ width: 'auto' }}
-                                    >
-                                        {processing ? 'Procesando...' : '📸 Tomar Foto'}
-                                    </button>
                                 </div>
                             </div>
                         )}
@@ -646,105 +514,6 @@ const App = () => {
                             </div>
                         )}
 
-                        {/* Modal para actualizar perfil */}
-                        {showUpdateProfileModal && (
-                            <div className="modal-overlay">
-                                <div className="modal">
-                                    <div className="modal-content">
-                                        <h2 className="modal-title" style={{ color: '#000' }}>Actualizar Perfil</h2>
-                                        
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
-                                            <label htmlFor="employee-select">Seleccionar Empleado:</label>
-                                            <select
-                                                id="employee-select"
-                                                value={selectedEmployeeId}
-                                                onChange={(e) => {
-                                                    setSelectedEmployeeId(e.target.value);
-                                                    const selectedEmployee = employees.find(emp => emp.id === e.target.value);
-                                                    if (selectedEmployee) {
-                                                        setNewRut(selectedEmployee.rut);
-                                                    }
-                                                }}
-                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
-                                            >
-                                                <option value="">Selecciona un empleado</option>
-                                                {employees.map(emp => (
-                                                    <option key={emp.id} value={emp.id}>{emp.name} - {emp.rut}</option>
-                                                ))}
-                                            </select>
-                                            
-                                            <label htmlFor="rut-input">Nuevo RUT:</label>
-                                            <input
-                                                id="rut-input"
-                                                type="text"
-                                                placeholder="Nuevo RUT (opcional)"
-                                                value={newRut}
-                                                onChange={(e) => setNewRut(e.target.value)}
-                                                maxLength={12}
-                                                className="form-input"
-                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
-                                            />
-
-                                            <label>Foto de Perfil:</label>
-                                            {!newProfilePhoto && (
-                                                <div className="camera-container" style={{ position: 'relative', height: 'auto' }}>
-                                                    <video
-                                                        ref={videoRef}
-                                                        className="camera-video"
-                                                        autoPlay
-                                                        playsInline
-                                                        muted
-                                                        style={{ width: '100%', borderRadius: '0.5rem' }}
-                                                    />
-                                                    <button 
-                                                        onClick={takeProfilePhoto} 
-                                                        className="modal-button" 
-                                                        style={{ backgroundColor: '#2563eb', marginTop: '1rem' }}
-                                                    >
-                                                        Tomar Foto
-                                                    </button>
-                                                </div>
-                                            )}
-                                            {newProfilePhoto && (
-                                                <div style={{ textAlign: 'center' }}>
-                                                    <img src={newProfilePhoto} alt="Preview" style={{ width: '100%', maxWidth: '300px', borderRadius: '0.5rem', border: '2px solid #27ae60' }} />
-                                                    <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#666' }}>
-                                                        (Foto lista para guardar)
-                                                    </div>
-                                                    <button onClick={() => setNewProfilePhoto(null)} style={{ marginTop: '0.5rem', background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer' }}>
-                                                        Volver a tomar
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                                            <button
-                                                onClick={handleUpdateProfile}
-                                                disabled={!selectedEmployeeId || (!newRut && !newProfilePhoto) || processing}
-                                                className="modal-button"
-                                                style={{ backgroundColor: '#2563eb' }}
-                                            >
-                                                CONFIRMAR
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setShowUpdateProfileModal(false);
-                                                    setNewRut('');
-                                                    setNewProfilePhoto(null);
-                                                    setCameraActive(false);
-                                                }}
-                                                className="modal-button"
-                                                style={{ backgroundColor: '#dc2626' }}
-                                            >
-                                                CANCELAR
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
                         {/* Mensaje de estado */}
                         {message && (
                             <div className="message-container">
@@ -773,8 +542,24 @@ const App = () => {
                                 {recognizedPerson.isDuplicate ? `${recognizedPerson.type.toUpperCase()} DUPLICADA` : `${recognizedPerson.type.toUpperCase()} REGISTRADA`}
                             </h2>
                             
-                            {recognizedPerson.profileImage && (
-                                <img src={`${API_BASE_URL}${recognizedPerson.profileImage}`} alt="Foto de perfil" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem' }} />
+                            {/* Mostrar la foto capturada durante el reconocimiento */}
+                            {capturedPhoto && (
+                                <div style={{ marginBottom: '1rem' }}>
+                                    <img 
+                                        src={capturedPhoto} 
+                                        alt="Foto capturada" 
+                                        style={{ 
+                                            width: '150px', 
+                                            height: '150px', 
+                                            borderRadius: '50%', 
+                                            objectFit: 'cover',
+                                            border: '3px solid #16a34a'
+                                        }} 
+                                    />
+                                    <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem' }}>
+                                        Foto de verificación
+                                    </div>
+                                </div>
                             )}
                             
                             <div className="modal-info">
