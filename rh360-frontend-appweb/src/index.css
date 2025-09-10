@@ -15,7 +15,7 @@
  * proporcionalmente y se vea grande y ordenado sin scroll en cualquier dispositivo.
  */
 
-/* Reset y base */ 
+/* Reset y base */
 * {
   margin: 0;
   padding: 0;
@@ -23,7 +23,7 @@
 }
 
 :root {
-    --header-height: clamp(50px, 8vh, 80px);
+  --header-height: clamp(50px, 8vh, 80px);
 }
 
 html, body, #root {
@@ -38,16 +38,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Se modifica overflow-y a 'auto' para permitir el scroll si el contenido lo excede,
-     evitando que se corte en pantallas pequeñas */
   overflow-x: hidden;
-  overflow-y: auto; 
+  /* Se modifica a auto para permitir el scroll si el contenido lo excede.
+     El layout se adapta para no necesitarlo, pero es una buena práctica. */
+  overflow-y: auto;
 }
 
 /* Contenedor principal */
 .min-h-screen {
   min-height: 100vh;
-  /* Se modifica overflow para evitar recortes, el layout se adapta para no necesitarlo */
   overflow: hidden; 
   display: flex;
   flex-direction: column;
@@ -114,7 +113,7 @@ body {
 .main-view {
   display: flex;
   width: 100%;
-  max-width: 1200px; /* Limita el ancho en pantallas grandes */
+  max-width: 1200px;
 }
 
 .main-card {
@@ -147,7 +146,7 @@ body {
   padding: 0;
   margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
   display: flex;
-  flex-direction: column; /* Modo vertical por defecto */
+  flex-direction: column;
   gap: clamp(1rem, 5vw, 3rem);
   align-items: center;
   justify-content: center;
@@ -184,11 +183,12 @@ body {
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  padding: clamp(3rem, 10vw, 6rem) clamp(1.5rem, 5vw, 3rem); 
-  border-radius: clamp(1.5rem, 3vw, 2rem);
+  /* Se reducen los valores de clamp para que los botones sean más compactos en móvil */
+  padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 3vw, 2rem);
+  border-radius: clamp(1rem, 2vw, 2rem);
   transition: all 0.2s;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  min-height: clamp(10rem, 40vw, 15rem);
+  min-height: clamp(8rem, 30vw, 12rem);
   border: none;
   cursor: pointer;
   color: white;
@@ -238,7 +238,7 @@ body {
   opacity: 0.9;
 }
 
-/* Estilos de cﾃ｡mara y modal */
+/* Estilos de cámara y modal */
 .camera-view {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: clamp(1rem, 2vw, 1.5rem);
@@ -621,16 +621,62 @@ body {
 
 @media (max-width: 600px) {
   .main-card {
-    padding: 1rem;
+    padding: 1.5rem;
+    height: auto;
+    min-height: 80vh;
   }
 
   .time-display {
-    font-size: clamp(2rem, 10vw, 2.5rem);
-    margin-bottom: 0.8rem; 
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .button {
-    font-size: clamp(1rem, 5vw, 1.25rem);
-    padding: 1rem;
+  .main-button {
+    padding: 2rem 1.5rem;
+    min-height: 10rem;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1023px) {
+  .main-card {
+    padding: 2rem;
+  }
+  .time-display {
+    flex-direction: row;
+    gap: 2rem;
+  }
+  .buttons-grid {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+  }
+  .main-button {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-card {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3rem 4rem;
+  }
+  .main-header {
+    flex-shrink: 0;
+    margin-right: 3rem;
+  }
+  .time-display {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .buttons-grid {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 2rem;
+    flex: none;
+    width: auto;
   }
 }
