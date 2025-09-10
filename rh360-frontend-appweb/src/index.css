@@ -32,7 +32,7 @@ body {
   background-color: rgba(30, 41, 59, 0.95);
   color: white;
   border-bottom: 1px solid #475569;
-  padding: clamp(0.5rem, 2vw, 1.5rem);
+  padding: clamp(0.75rem, 3vw, 2rem) clamp(1rem, 4vw, 2.5rem); 
   position: sticky;
   top: 0;
   z-index: 100;
@@ -69,13 +69,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.5rem, 5vw, 3rem); 
 }
 
 .main-card {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: clamp(1rem, 2vw, 2rem);
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(2rem, 6vw, 4rem); 
   width: 95%;
   max-width: 900px;
   margin: auto;
@@ -95,6 +95,8 @@ body {
 }
 
 .time-display {
+  /* Se eliminó el padding de los lados para que el contenido se adapte al contenedor */
+  padding: 0;
   margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
   display: flex;
   gap: clamp(1rem, 5vw, 3rem);
@@ -139,7 +141,7 @@ body {
   justify-content: center;
   align-items: center;
   font-weight: bold;
-  padding: clamp(2rem, 8vw, 5rem) 1rem;
+  padding: clamp(3rem, 10vw, 6rem) clamp(1.5rem, 5vw, 3rem); 
   border-radius: clamp(1.5rem, 3vw, 2rem);
   transition: all 0.2s;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
