@@ -592,12 +592,12 @@ const App = () => {
 
                                 <div className="modal-details">
                                     <div className="modal-detail-row">
-                                        <span className="modal-detail-label">RUT:</span>
                                         <span className="modal-detail-value">{recognizedPerson.rut}</span>
+                                        <span className="modal-detail-label">RUT:</span>
                                     </div>
                                     <div className="modal-detail-row">
-                                        <span className="modal-detail-label">Departamento:</span>
                                         <span className="modal-detail-value">{recognizedPerson.department}</span>
+                                        <span className="modal-detail-label">Departamento:</span>
                                     </div>
                                 </div>
                             </div>
