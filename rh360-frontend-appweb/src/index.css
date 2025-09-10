@@ -1,4 +1,19 @@
-/* Reset y base */ 
+/*
+ * ========================================
+ * ARQUITECTURA RESPONSIVA
+ * ========================================
+ * 1. MÓVIL (MOBILE-FIRST)
+ * - Se aplican los estilos base para pantallas pequeñas primero.
+ * 2. TABLETS (y escritorios pequeños)
+ * - @media (min-width: 600px)
+ * 3. ESCRITORIOS (Laptops, pantallas grandes)
+ * - @media (min-width: 1024px)
+ *
+ * Se ha optimizado el uso de flexbox, unidades relativas (vh, vw, %)
+ * y funciones modernas como clamp() para un escalado fluido.
+ */
+
+/* Reset y base */
 * {
   margin: 0;
   padding: 0;
@@ -68,7 +83,7 @@ body {
 .main-area {
   flex: 1;
   display: flex;
-  align-items: stretch;   /* 👈 ocupar todo el alto */
+  align-items: stretch;    /* 👈 ocupar todo el alto */
   justify-content: center;
   padding: clamp(1rem, 3vw, 2rem);
 }
@@ -131,7 +146,7 @@ body {
   flex-direction: column;
   gap: clamp(1rem, 3vw, 2rem);
   width: 100%;
-  flex: 1;                 /* 👈 se ajusta */
+  flex: 1;                /* 👈 se ajusta */
   justify-content: center; /* 👈 centrado vertical */
 }
 
