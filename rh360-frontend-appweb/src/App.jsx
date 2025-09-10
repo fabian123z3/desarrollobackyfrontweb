@@ -10,7 +10,7 @@ import contadorSound from './assets/contador.mp3';
 
 
 // Configuración del backend
-const API_BASE_URL = 'https://bc60faf8d7e5.ngrok-free.app';
+const API_BASE_URL = 'https://6mj3964p-8000.brs.devtunnels.ms/';
 const NGROK_HEADERS = {
     'ngrok-skip-browser-warning': 'true'
 };
@@ -378,7 +378,7 @@ const App = () => {
                             <div className="main-view">
                                 <div className="main-card">
                                     <div className="main-header">
-                                        <h2 className="main-title">
+                                        <h2 className="main-title  bg-amber-700" >
                                             Control de Asistencia
                                         </h2>
                                         <div className="time-display">
