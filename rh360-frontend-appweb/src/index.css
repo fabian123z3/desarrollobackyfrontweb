@@ -815,3 +815,121 @@ body {
     height: 300px !important;
   }
 }
+.form-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.75rem;
+    font-size: 1.2rem;
+    text-align: center;
+    background-color: #f9fafb;
+}
+
+.form-input:focus {
+    border-color: #2563eb;
+    outline: none;
+    background-color: white;
+}.form-input {
+    padding: 1rem 1.5rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.75rem;
+    font-size: 1.2rem;
+    text-align: center;
+    background-color: #f9fafb;
+}
+
+.form-input:focus {
+    border-color: #2563eb;
+    outline: none;
+    background-color: white;
+}/* Estilos para el modal de ingreso manual en pantallas grandes */
+@media (min-width: 768px) {
+  .modal {
+    max-width: 90vw;
+    width: 90vw;
+    padding: 3rem;
+  }
+  
+  .modal-title {
+    font-size: 3.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .modal p {
+    font-size: 1.8rem;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+  }
+  
+  /* Contenedor de inputs más grande */
+  .mt-6 {
+    margin-top: 2rem;
+  }
+  
+  .space-y-4 > * + * {
+    margin-top: 2rem;
+  }
+  
+  /* Labels más grandes */
+  .text-xl {
+    font-size: 2.5rem !important;
+    font-weight: bold;
+  }
+  
+  /* Inputs más grandes */
+  .form-input {
+    font-size: 2rem !important;
+    padding: 1.5rem 2rem !important;
+    border: 3px solid #d1d5db !important;
+    border-radius: 1rem !important;
+    min-height: 80px !important;
+  }
+  
+  .form-input:focus {
+    border-color: #2563eb !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1) !important;
+  }
+  
+  /* Botones más grandes */
+  .modal-button {
+    font-size: 2.2rem !important;
+    padding: 2rem 1.5rem !important;
+    min-height: 100px !important;
+    border-radius: 1.5rem !important;
+    font-weight: bold !important;
+  }
+  
+  /* Mensajes de error más grandes */
+  .bg-red-100 {
+    font-size: 1.8rem !important;
+    padding: 2rem !important;
+    border-radius: 1rem !important;
+  }
+}
+
+/* Para tablets más grandes */
+@media (min-width: 1024px) {
+  .modal-title {
+    font-size: 4rem;
+  }
+  
+  .modal p {
+    font-size: 2.2rem;
+  }
+  
+  .text-xl {
+    font-size: 3rem !important;
+  }
+  
+  .form-input {
+    font-size: 2.5rem !important;
+    padding: 2rem 2.5rem !important;
+    min-height: 100px !important;
+  }
+  
+  .modal-button {
+    font-size: 2.8rem !important;
+    padding: 2.5rem 2rem !important;
+    min-height: 120px !important;
+  }
+}
