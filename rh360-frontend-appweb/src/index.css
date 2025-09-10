@@ -1,4 +1,4 @@
-/* Reset y base */ 
+/* Reset y base */
 * {
   margin: 0;
   padding: 0;
@@ -12,7 +12,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  overflow-y: hidden; /* 👈 evitar scroll vertical */
+  overflow-y: hidden;
   height: 100vh;
 }
 
@@ -68,7 +68,7 @@ body {
 .main-area {
   flex: 1;
   display: flex;
-  align-items: stretch;   /* 👈 ocupar todo el alto */
+  align-items: stretch;
   justify-content: center;
   padding: clamp(1rem, 3vw, 2rem);
 }
@@ -76,13 +76,11 @@ body {
 .main-card {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: clamp(1rem, 2vw, 2rem);
-  padding: clamp(1rem, 4vw, 2rem);
+  padding: clamp(1.5rem, 5vw, 3rem); 
   width: 95%;
   max-width: 900px;
   margin: auto;
   text-align: center;
-
-  /* 👇 clave */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -131,8 +129,8 @@ body {
   flex-direction: column;
   gap: clamp(1rem, 3vw, 2rem);
   width: 100%;
-  flex: 1;                 /* 👈 se ajusta */
-  justify-content: center; /* 👈 centrado vertical */
+  flex: 1;
+  justify-content: center;
 }
 
 @media (min-width: 1024px) {
@@ -577,23 +575,4 @@ body {
 .modal-button:active {
   background-color: #1e40af;
   transform: scale(0.98);
-}
-
-/* ------------------ */
-/* Responsividad      */
-/* ------------------ */
-
-@media (max-width: 600px) {
-  .main-card {
-    padding: 1rem;
-  }
-
-  .time-display {
-    font-size: clamp(2rem, 10vw, 2.5rem);
-  }
-
-  .button {
-    font-size: clamp(1rem, 5vw, 1.25rem);
-    padding: 1rem;
-  }
 }
