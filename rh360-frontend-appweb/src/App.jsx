@@ -172,6 +172,7 @@ const App = () => {
         setCountdown(null);
         setShowConfirmation(false);
         setCapturedPhoto(null);
+        setLoading(false);
     };
 
     // Iniciar proceso de marcado
