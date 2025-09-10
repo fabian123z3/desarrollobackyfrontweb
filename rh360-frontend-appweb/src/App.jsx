@@ -464,7 +464,7 @@ const App = () => {
                                 <div className="modal">
                                     <div className="modal-content">
                                         <h2 className="modal-title" style={{ color: '#000' }}>Ingreso Manual</h2>
-                                        <p>No se pudo reconocer su rostro. Por favor, ingrese su RUT y contraseña para registrar su asistencia.</p>
+                                        <p>Ingrese su RUT y contraseña para registrar su asistencia.</p>
 
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
                                             <input
@@ -482,7 +482,7 @@ const App = () => {
                                                 value={manualPassword}
                                                 onChange={(e) => setManualPassword(e.target.value)}
                                                 className="form-input"
-                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
+                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: 'px solid #ccc', fontSize: '3rem' }}
                                             />
                                         </div>
 
@@ -492,7 +492,7 @@ const App = () => {
                                                 className="modal-button"
                                                 style={{ backgroundColor: '#2563eb' }}
                                             >
-                                                CONFIRMAR
+                                                Confirmar Asistencia
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -502,7 +502,7 @@ const App = () => {
                                                 className="modal-button"
                                                 style={{ backgroundColor: '#dc2626' }}
                                             >
-                                                CANCELAR
+                                                Intentar Nuevamente
                                             </button>
                                         </div>
                                     </div>
