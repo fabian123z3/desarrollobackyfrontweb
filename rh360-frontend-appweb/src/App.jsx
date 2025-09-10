@@ -381,7 +381,7 @@ const App = () => {
                                         <h2 className="main-title">
                                             Control de Asistencia
                                         </h2>
-                                        <div className="time-display" style={{ display: 'flex', gap: '3rem', alignItems: 'center', justifyContent: 'center' }}>
+                                        <div className="time-display">
                                             <div className="time-clock">
                                                 {currentTime.toLocaleTimeString('es-CL', {
                                                     hour: '2-digit',
@@ -464,7 +464,7 @@ const App = () => {
                                 <div className="modal">
                                     <div className="modal-content">
                                         <h2 className="modal-title" style={{ color: '#000' }}>Ingreso Manual</h2>
-                                        <p>Ingrese su RUT y contraseña para registrar su asistencia.</p>
+                                        <p>Ingrese su RUT para registrar su asistencia.</p>
 
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
                                             <input
@@ -484,7 +484,7 @@ const App = () => {
                                             />
                                         </div>
 
-                                        <div className="modal-manual-buttons" style={{ display: 'flex', gap: '1rem' }}>
+                                        <div className="modal-manual-buttons">
                                             <button
                                                 onClick={handleManualLogin}
                                                 className="modal-button modal-button-manual"
@@ -582,7 +582,7 @@ const App = () => {
                             )}
 
                             {showConfirmation ? (
-                                <div style={{ display: 'flex', gap: '1rem' }}>
+                                <div className="modal-manual-buttons">
                                     <button
                                         onClick={() => {
                                             // Reproduce el sonido de éxito, y luego el sonido de salida o entrada
@@ -595,7 +595,7 @@ const App = () => {
                                             setRecognizedPerson(null);
                                             resetProcess();
                                         }}
-                                        className="modal-button"
+                                        className="modal-button modal-button-manual"
                                         style={{ backgroundColor: '#16a34a' }}
                                     >
                                         ✅ CONFIRMAR
@@ -608,7 +608,7 @@ const App = () => {
                                             setCameraActive(false);
                                             showMessage('🔄 Selecciona entrada o salida nuevamente', 'warning');
                                         }}
-                                        className="modal-button"
+                                        className="modal-button modal-button-manual"
                                         style={{ backgroundColor: '#dc2626' }}
                                     >
                                         ❌ INTENTAR DE NUEVO

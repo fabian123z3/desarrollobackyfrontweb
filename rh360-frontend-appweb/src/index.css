@@ -12,7 +12,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  overflow-y: auto; /* Permite scroll vertical si es necesario */
+  overflow-y: auto;
 }
 
 /* Contenedor principal */
@@ -96,6 +96,10 @@ body {
 
 .time-display {
   margin-bottom: 2rem;
+  display: flex;
+  gap: clamp(1rem, 5vw, 3rem);
+  align-items: center;
+  justify-content: center;
 }
 
 .time-clock {
@@ -113,12 +117,20 @@ body {
   line-height: 1.2;
 }
 
-/* Botones */
+/* Botones principales */
 .buttons-grid {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .buttons-grid {
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+  }
 }
 
 .main-button {
@@ -606,7 +618,7 @@ body {
   }
 }
 
-/* Estilos para el modal de ingreso manual */
+/* Estilos para el modal de ingreso manual y de confirmación */
 .modal-overlay .modal p {
   font-size: clamp(1rem, 4vw, 1.8rem);
   line-height: 1.5;
@@ -630,12 +642,18 @@ body {
   background-color: white;
 }
 
-/* Estilos de botones del modal manual */
+/* Estilos para los botones del modal de ingreso manual */
 .modal-manual-buttons {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+  .modal-manual-buttons {
+    flex-direction: row;
+  }
 }
 
 .modal-button-manual {
