@@ -627,3 +627,126 @@ body {
     transform: scale(1.1);
   }
 }
+/* Estilos mejorados para tablets en modo vertical */
+@media (min-width: 768px) and (orientation: portrait) {
+  .modal {
+    max-width: 600px;
+    width: 90%;
+    padding: 3rem;
+    border-radius: 1.5rem;
+  }
+  
+  .modal-content {
+    text-align: center;
+  }
+  
+  .modal-icon {
+    font-size: 6rem;
+    margin-bottom: 2rem;
+  }
+  
+  .modal-title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
+  
+  .modal-info {
+    background-color: #f8fafc;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .modal-name {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #374151;
+    margin-bottom: 1.5rem;
+  }
+  
+  .modal-details {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: left;
+    font-size: 1.25rem;
+  }
+  
+  .modal-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  .modal-detail-label {
+    font-weight: bold;
+    color: #6b7280;
+  }
+  
+  .modal-detail-value {
+    font-weight: 600;
+    color: #111827;
+  }
+  
+  .modal-warning-box {
+    background-color: #fef3c7;
+    border: 2px solid #f59e0b;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .modal-warning-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #92400e;
+  }
+  
+  .modal-button {
+    padding: 1.5rem 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 1rem;
+    margin: 0.5rem;
+    min-width: 200px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .modal-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Foto capturada más grande */
+  .modal img {
+    width: 200px !important;
+    height: 200px !important;
+    border-radius: 50%;
+    border: 4px solid #16a34a;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Para tablets más grandes */
+@media (min-width: 1024px) and (orientation: portrait) {
+  .modal {
+    max-width: 700px;
+    padding: 4rem;
+  }
+  
+  .modal-title {
+    font-size: 3.5rem;
+  }
+  
+  .modal-name {
+    font-size: 3rem;
+  }
+  
+  .modal-details {
+    font-size: 1.5rem;
+  }
+}
