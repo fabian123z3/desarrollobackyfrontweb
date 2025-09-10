@@ -590,7 +590,7 @@ body {
 
   .time-display {
     font-size: clamp(2rem, 10vw, 2.5rem);
-    
+    margin-bottom: 0.8rem; 
   }
 
   .button {
