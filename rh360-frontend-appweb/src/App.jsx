@@ -43,13 +43,10 @@ const App = () => {
     const [showManualLoginModal, setShowManualLoginModal] = useState(false);
     const [manualRut, setManualRut] = useState('');
     const [manualPassword, setManualPassword] = useState('');
-    const [manualDept, setManualDept] = useState(''); // Nuevo estado para Departamento
-    const [focusedField, setFocusedField] = useState(null); // Nuevo estado para campo enfocado
-    const [manualLoginError, setManualLoginError] = useState(''); // Nuevo estado para errores de login manual
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    
+
     // Nuevo estado para el contador
     const [countdown, setCountdown] = useState(null);
+    const [showConfirmation, setShowConfirmation] = useState(false);
     
     // Estado para guardar la foto capturada durante el reconocimiento
     const [capturedPhoto, setCapturedPhoto] = useState(null);
@@ -259,7 +256,7 @@ const App = () => {
 
                 // Error en el reconocimiento
                 const errorMsg = data.message || 'Rostro no reconocido';
-                setManualLoginError(errorMsg); // Muestra el error en el modal de login manual
+                showMessage(`❌ ${errorMsg}`, 'error');
                 
                 setCameraActive(false);
                 setShowManualLoginModal(true);
@@ -267,8 +264,9 @@ const App = () => {
 
         } catch (error) {
             console.error('Error procesando foto:', error);
-            setManualLoginError('Error de conexión. Intenta nuevamente.'); // Muestra el error en el modal
-            setShowManualLoginModal(true);
+            showMessage('❌ Error de conexión. Intenta nuevamente.', 'error');
+            resetProcess();
+        } finally {
             setProcessing(false);
             setLoading(false);
         }
@@ -279,7 +277,6 @@ const App = () => {
 
         stopAllAudio();
         setLoading(true);
-        setManualLoginError('');
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/mark-attendance/`, {
@@ -290,7 +287,6 @@ const App = () => {
                 },
                 body: JSON.stringify({
                     employee_id: manualRut,
-                    // The password is not used, so it's not sent to the backend.
                     type: currentProcess,
                     latitude: null,
                     longitude: null,
@@ -315,12 +311,17 @@ const App = () => {
                 setShowConfirmation(true);
                 setShowManualLoginModal(false);
             } else {
-                setManualLoginError(`❌ Error: ${data.message || 'Empleado no encontrado o datos incorrectos.'}`);
+                showMessage(`❌ Error: ${data.message || 'Empleado no encontrado o datos incorrectos.'}`, 'error');
+                setManualRut('');
+                setManualPassword('');
+                setShowManualLoginModal(false);
+                resetProcess();
             }
 
         } catch (error) {
             console.error('Error en el ingreso manual:', error);
-            setManualLoginError('❌ Error de conexión. Intenta nuevamente.');
+            showMessage('❌ Error de conexión. Intenta nuevamente.', 'error');
+            resetProcess();
         } finally {
             setLoading(false);
         }
@@ -380,25 +381,19 @@ const App = () => {
                                         <h2 className="main-title">
                                             Control de Asistencia
                                         </h2>
-                                        <div className="time-display">
-                                            <div className="time-display" style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'center' }}>
-                                                <div className="time-clock">
-                                                    {currentTime.toLocaleTimeString('es-CL', {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                        hour12: false
-                                                    })}
-                                                </div>
-                                                <div className="time-clock">
-                                                    🕐
-                                                </div>
-                                                <div className="time-clock">
-                                                    {currentTime.toLocaleDateString('es-CL', {
-                                                        day: '2-digit',
-                                                        month: '2-digit',
-                                                        year: 'numeric'
-                                                    })}
-                                                </div>
+                                        <div className="time-display" style={{ display: 'flex', gap: '3rem', alignItems: 'center', justifyContent: 'center' }}>
+                                            <div className="time-clock">
+                                                {currentTime.toLocaleTimeString('es-CL', {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    hour12: false
+                                                })}
+                                            </div>
+                                            <div className="time-clock">
+                                                🕐
+                                            </div>
+                                            <div className="time-clock">
+                                                {`${currentTime.getDate().toString().padStart(2, '0')}-${(currentTime.getMonth() + 1).toString().padStart(2, '0')}-${currentTime.getFullYear()}`}
                                             </div>
                                         </div>
                                     </div>
@@ -469,55 +464,32 @@ const App = () => {
                                 <div className="modal">
                                     <div className="modal-content">
                                         <h2 className="modal-title" style={{ color: '#000' }}>Ingreso Manual</h2>
-                                        {manualLoginError && (
-                                            <div className="bg-red-100 text-red-700 font-bold p-4 mb-4 rounded-lg">
-                                                {manualLoginError}
-                                            </div>
-                                        )}
-                                        <p>No se pudo reconocer su rostro. Por favor, ingrese su RUT para registrar su asistencia.</p>
+                                        <p>No se pudo reconocer su rostro. Por favor, ingrese su RUT y contraseña para registrar su asistencia.</p>
 
-                                        <div className="mt-6 space-y-4">
-                                            <div className="flex items-center space-x-2">
-                                                {focusedField === 'rut' ? (
-                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-right">RUT</span>
-                                                ) : null}
-                                                <input
-                                                    type="text"
-                                                    placeholder="RUT"
-                                                    value={manualRut}
-                                                    onChange={handleRutChange}
-                                                    onFocus={() => setFocusedField('rut')}
-                                                    onBlur={() => setFocusedField(null)}
-                                                    maxLength={12}
-                                                    className="flex-1 form-input"
-                                                />
-                                                {focusedField !== 'rut' ? (
-                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-left">RUT</span>
-                                                ) : null}
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                {focusedField === 'depto' ? (
-                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-right">Departamento</span>
-                                                ) : null}
-                                                <input
-                                                    type="text"
-                                                    placeholder="Departamento"
-                                                    value={manualDept}
-                                                    onChange={(e) => setManualDept(e.target.value)}
-                                                    onFocus={() => setFocusedField('depto')}
-                                                    onBlur={() => setFocusedField(null)}
-                                                    className="flex-1 form-input"
-                                                />
-                                                {focusedField !== 'depto' ? (
-                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-left">Departamento</span>
-                                                ) : null}
-                                            </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
+                                            <input
+                                                type="text"
+                                                placeholder="Ingresa tu RUT (ej: 12345678-K)"
+                                                value={manualRut}
+                                                onChange={handleRutChange}
+                                                maxLength={10}
+                                                className="form-input"
+                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
+                                            />
+                                            <input
+                                                type="password"
+                                                placeholder="Ingresa tu contraseña"
+                                                value={manualPassword}
+                                                onChange={(e) => setManualPassword(e.target.value)}
+                                                className="form-input"
+                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
+                                            />
                                         </div>
 
-                                        <div className="flex gap-4 mt-6">
+                                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
                                             <button
                                                 onClick={handleManualLogin}
-                                                className="flex-1 modal-button"
+                                                className="modal-button"
                                                 style={{ backgroundColor: '#2563eb' }}
                                             >
                                                 CONFIRMAR
@@ -527,7 +499,7 @@ const App = () => {
                                                     setShowManualLoginModal(false);
                                                     resetProcess();
                                                 }}
-                                                className="flex-1 modal-button"
+                                                className="modal-button"
                                                 style={{ backgroundColor: '#dc2626' }}
                                             >
                                                 CANCELAR
