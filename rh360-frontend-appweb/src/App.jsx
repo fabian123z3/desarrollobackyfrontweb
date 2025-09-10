@@ -43,10 +43,13 @@ const App = () => {
     const [showManualLoginModal, setShowManualLoginModal] = useState(false);
     const [manualRut, setManualRut] = useState('');
     const [manualPassword, setManualPassword] = useState('');
-
+    const [manualDept, setManualDept] = useState(''); // Nuevo estado para Departamento
+    const [focusedField, setFocusedField] = useState(null); // Nuevo estado para campo enfocado
+    const [manualLoginError, setManualLoginError] = useState(''); // Nuevo estado para errores de login manual
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    
     // Nuevo estado para el contador
     const [countdown, setCountdown] = useState(null);
-    const [showConfirmation, setShowConfirmation] = useState(false);
     
     // Estado para guardar la foto capturada durante el reconocimiento
     const [capturedPhoto, setCapturedPhoto] = useState(null);
@@ -255,7 +258,7 @@ const App = () => {
 
                 // Error en el reconocimiento
                 const errorMsg = data.message || 'Rostro no reconocido';
-                showMessage(`❌ ${errorMsg}`, 'error');
+                setManualLoginError(errorMsg); // Muestra el error en el modal de login manual
                 
                 setCameraActive(false);
                 setShowManualLoginModal(true);
@@ -263,9 +266,8 @@ const App = () => {
 
         } catch (error) {
             console.error('Error procesando foto:', error);
-            showMessage('❌ Error de conexión. Intenta nuevamente.', 'error');
-            resetProcess();
-        } finally {
+            setManualLoginError('Error de conexión. Intenta nuevamente.'); // Muestra el error en el modal
+            setShowManualLoginModal(true);
             setProcessing(false);
             setLoading(false);
         }
@@ -276,6 +278,7 @@ const App = () => {
 
         stopAllAudio();
         setLoading(true);
+        setManualLoginError('');
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/mark-attendance/`, {
@@ -311,17 +314,12 @@ const App = () => {
                 setShowConfirmation(true);
                 setShowManualLoginModal(false);
             } else {
-                showMessage(`❌ Error: ${data.message || 'Empleado no encontrado o datos incorrectos.'}`, 'error');
-                setManualRut('');
-                setManualPassword('');
-                setShowManualLoginModal(false);
-                resetProcess();
+                setManualLoginError(`❌ Error: ${data.message || 'Empleado no encontrado o datos incorrectos.'}`);
             }
 
         } catch (error) {
             console.error('Error en el ingreso manual:', error);
-            showMessage('❌ Error de conexión. Intenta nuevamente.', 'error');
-            resetProcess();
+            setManualLoginError('❌ Error de conexión. Intenta nuevamente.');
         } finally {
             setLoading(false);
         }
@@ -334,7 +332,6 @@ const App = () => {
             setManualRut(filteredValue);
         }
     };
-
 
     const closePersonInfo = () => {
         setRecognizedPerson(null);
@@ -391,7 +388,10 @@ const App = () => {
                                                         hour12: false
                                                     })}
                                                 </div>
-                                                <div className="time-date">
+                                                <div className="time-clock">
+                                                    🕐
+                                                </div>
+                                                <div className="time-clock">
                                                     {currentTime.toLocaleDateString('es-CL', {
                                                         day: '2-digit',
                                                         month: '2-digit',
@@ -468,32 +468,55 @@ const App = () => {
                                 <div className="modal">
                                     <div className="modal-content">
                                         <h2 className="modal-title" style={{ color: '#000' }}>Ingreso Manual</h2>
+                                        {manualLoginError && (
+                                            <div className="bg-red-100 text-red-700 font-bold p-4 mb-4 rounded-lg">
+                                                {manualLoginError}
+                                            </div>
+                                        )}
                                         <p>No se pudo reconocer su rostro. Por favor, ingrese su RUT para registrar su asistencia.</p>
 
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
-                                            <input
-                                                type="text"
-                                                placeholder="Ingresa tu RUT (ej: 12345678-K)"
-                                                value={manualRut}
-                                                onChange={handleRutChange}
-                                                maxLength={10}
-                                                className="form-input"
-                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
-                                            />
-                                            <input
-                                                type="password"
-                                                placeholder="Ingresa tu contraseña"
-                                                value={manualPassword}
-                                                onChange={(e) => setManualPassword(e.target.value)}
-                                                className="form-input"
-                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
-                                            />
+                                        <div className="mt-6 space-y-4">
+                                            <div className="flex items-center space-x-2">
+                                                {focusedField === 'rut' ? (
+                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-right">RUT</span>
+                                                ) : null}
+                                                <input
+                                                    type="text"
+                                                    placeholder="RUT"
+                                                    value={manualRut}
+                                                    onChange={handleRutChange}
+                                                    onFocus={() => setFocusedField('rut')}
+                                                    onBlur={() => setFocusedField(null)}
+                                                    maxLength={12}
+                                                    className="flex-1 form-input"
+                                                />
+                                                {focusedField !== 'rut' ? (
+                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-left">RUT</span>
+                                                ) : null}
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                {focusedField === 'depto' ? (
+                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-right">Departamento</span>
+                                                ) : null}
+                                                <input
+                                                    type="text"
+                                                    placeholder="Departamento"
+                                                    value={manualDept}
+                                                    onChange={(e) => setManualDept(e.target.value)}
+                                                    onFocus={() => setFocusedField('depto')}
+                                                    onBlur={() => setFocusedField(null)}
+                                                    className="flex-1 form-input"
+                                                />
+                                                {focusedField !== 'depto' ? (
+                                                    <span className="text-xl font-bold text-gray-700 w-1/4 text-left">Departamento</span>
+                                                ) : null}
+                                            </div>
                                         </div>
 
-                                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                        <div className="flex gap-4 mt-6">
                                             <button
                                                 onClick={handleManualLogin}
-                                                className="modal-button"
+                                                className="flex-1 modal-button"
                                                 style={{ backgroundColor: '#2563eb' }}
                                             >
                                                 CONFIRMAR
@@ -503,7 +526,7 @@ const App = () => {
                                                     setShowManualLoginModal(false);
                                                     resetProcess();
                                                 }}
-                                                className="modal-button"
+                                                className="flex-1 modal-button"
                                                 style={{ backgroundColor: '#dc2626' }}
                                             >
                                                 CANCELAR

@@ -103,6 +103,7 @@ body {
   font-weight: bold;
   color: white;
   line-height: 1.2;
+  white-space: nowrap;
 }
 
 .time-date {
