@@ -1,4 +1,4 @@
-/* Reset y base */
+/* Reset y base */ 
 * {
   margin: 0;
   padding: 0;
@@ -12,7 +12,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden; /* 👈 evitar scroll vertical */
+  height: 100vh;
 }
 
 /* Contenedor principal */
@@ -67,19 +68,25 @@ body {
 .main-area {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: stretch;   /* 👈 ocupar todo el alto */
   justify-content: center;
-  padding: clamp(1.5rem, 5vw, 3rem); 
+  padding: clamp(1rem, 3vw, 2rem);
 }
 
 .main-card {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: clamp(1rem, 2vw, 2rem);
-  padding: clamp(2rem, 6vw, 4rem); 
+  padding: clamp(1rem, 4vw, 2rem);
   width: 95%;
   max-width: 900px;
   margin: auto;
   text-align: center;
+
+  /* 👇 clave */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 .main-header {
@@ -124,6 +131,8 @@ body {
   flex-direction: column;
   gap: clamp(1rem, 3vw, 2rem);
   width: 100%;
+  flex: 1;                 /* 👈 se ajusta */
+  justify-content: center; /* 👈 centrado vertical */
 }
 
 @media (min-width: 1024px) {
@@ -327,7 +336,6 @@ body {
 .control-button:disabled {
   background-color: #64748b !important;
   cursor: not-allowed;
-  transform: none;
 }
 
 .button-capture {
@@ -554,169 +562,38 @@ body {
   color: white;
   font-weight: bold;
   padding: clamp(1rem, 5vw, 2.5rem) 1.5rem;
-  border-radius: clamp(0.75rem, 1.5vw, 1rem);
-  font-size: clamp(1.125rem, 4vw, 2rem);
-  transition: all 0.2s;
+  border-radius: clamp(0.75rem, 2vw, 1.25rem);
   border: none;
   cursor: pointer;
-  min-height: 80px;
+  font-size: clamp(1.25rem, 4vw, 2rem);
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .modal-button:hover {
   background-color: #1d4ed8;
+  transform: scale(1.05);
 }
 
-/* Loading overlay */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(15, 23, 42, 0.95);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 40;
+.modal-button:active {
+  background-color: #1e40af;
+  transform: scale(0.98);
 }
 
-.loading-spinner {
-  width: clamp(5rem, 10vw, 7rem);
-  height: clamp(5rem, 10vw, 7rem);
-  border: 4px solid #64748b;
-  border-top: 4px solid #2563eb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
-}
+/* ------------------ */
+/* Responsividad      */
+/* ------------------ */
 
-.loading-title {
-  font-size: clamp(1.5rem, 5vw, 2.5rem);
-  font-weight: bold;
-  color: white;
-  margin-bottom: 0.5rem;
-}
-
-.loading-subtitle {
-  font-size: clamp(1.125rem, 4vw, 1.8rem);
-  color: #cbd5e1;
-}
-
-.countdown-display {
-  font-size: clamp(5rem, 20vw, 10rem);
-  font-weight: bold;
-  color: #dc2626;
-  text-align: center;
-  margin: clamp(1rem, 5vw, 2rem) 0;
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
-  animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
+@media (max-width: 600px) {
+  .main-card {
+    padding: 1rem;
   }
 
-  50% {
-    transform: scale(1.1);
+  .time-display {
+    font-size: clamp(2rem, 10vw, 2.5rem);
   }
-}
 
-/* Estilos para el modal de ingreso manual */
-.modal-overlay .modal p {
-  font-size: clamp(1rem, 4vw, 1.8rem);
-  line-height: 1.5;
-  margin-bottom: clamp(1rem, 4vw, 2rem);
-}
-
-.form-input {
-  padding: clamp(1rem, 4vw, 1.5rem) clamp(1rem, 4vw, 2rem);
-  border: 2px solid #d1d5db;
-  border-radius: clamp(0.75rem, 1.5vw, 1rem);
-  font-size: clamp(1rem, 4vw, 2rem);
-  text-align: center;
-  background-color: #f9fafb;
-  width: 100%;
-  min-height: 70px;
-}
-
-.form-input:focus {
-  border-color: #2563eb;
-  outline: none;
-  background-color: white;
-}
-
-/* Estilos de botones del modal manual */
-.modal-manual-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1rem, 4vw, 1.5rem);
-  margin-top: clamp(1rem, 4vw, 2rem);
-}
-
-@media (min-width: 768px) {
-  .modal-manual-buttons {
-    flex-direction: row;
+  .button {
+    font-size: clamp(1rem, 5vw, 1.25rem);
+    padding: 1rem;
   }
-}
-
-.modal-button-manual {
-  font-size: clamp(1.2rem, 5vw, 2rem);
-  padding: clamp(1rem, 5vw, 2.5rem);
-  border-radius: clamp(0.75rem, 1.5vw, 1rem);
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-}
-
-/* Nuevas reglas para la vista principal en modo vertical */
-@media (orientation: portrait) {
-    .main-area {
-        padding: clamp(1rem, 8vw, 4rem);
-    }
-    
-    .main-card {
-        padding: clamp(1.5rem, 8vw, 5rem);
-    }
-
-    .main-title {
-        font-size: clamp(2rem, 10vw, 4rem);
-    }
-
-    .time-display {
-        flex-direction: column;
-        gap: clamp(0.5rem, 2vw, 1rem);
-    }
-    
-    .time-clock {
-        font-size: clamp(2.5rem, 12vw, 6rem);
-    }
-
-    .time-date {
-        font-size: clamp(1.5rem, 6vw, 2.5rem);
-    }
-    
-    /* Esta es la regla crucial para la orientación vertical */
-    .buttons-grid {
-      flex-direction: row; /* Fuerza la disposición horizontal de los botones */
-      justify-content: center; /* Centra los botones en el contenedor */
-      align-items: stretch; /* Asegura que los botones tengan la misma altura */
-    }
-
-    .main-button {
-      padding: clamp(2.5rem, 10vw, 6rem) clamp(1rem, 5vw, 3rem);
-      width: 48%; /* Ajusta el ancho para que quepan dos botones */
-    }
-
-    .button-icon {
-        font-size: clamp(4rem, 15vw, 10rem);
-    }
-
-    .button-title {
-        font-size: clamp(2rem, 8vw, 4rem);
-    }
-
-    .button-desc {
-        font-size: clamp(1.2rem, 5vw, 2rem);
-    }
 }
