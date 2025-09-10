@@ -106,7 +106,7 @@ body {
 }
 
 .time-date {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: #cbd5e1;
   line-height: 1.2;
 }
@@ -199,10 +199,10 @@ body {
     font-size: 3rem;
   }
   .time-clock {
-    font-size: 4rem;
+    font-size: 3rem;
   }
   .time-date {
-    font-size: 3rem;
+    font-size: 2rem;
   }
   .buttons-grid {
     gap: 2rem; /* Mayor espacio entre botones */
