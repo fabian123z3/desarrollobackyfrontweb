@@ -474,7 +474,6 @@ const App = () => {
                                                 onChange={handleRutChange}
                                                 maxLength={10}
                                                 className="form-input"
-                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #ccc', fontSize: '1rem' }}
                                             />
                                             <input
                                                 type="password"
@@ -482,14 +481,13 @@ const App = () => {
                                                 value={manualPassword}
                                                 onChange={(e) => setManualPassword(e.target.value)}
                                                 className="form-input"
-                                                style={{ padding: '0.75rem', borderRadius: '0.5rem', border: 'px solid #ccc', fontSize: '3rem' }}
                                             />
                                         </div>
 
-                                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                                        <div className="modal-manual-buttons" style={{ display: 'flex', gap: '1rem' }}>
                                             <button
                                                 onClick={handleManualLogin}
-                                                className="modal-button"
+                                                className="modal-button modal-button-manual"
                                                 style={{ backgroundColor: '#2563eb' }}
                                             >
                                                 Confirmar Asistencia
@@ -499,7 +497,7 @@ const App = () => {
                                                     setShowManualLoginModal(false);
                                                     resetProcess();
                                                 }}
-                                                className="modal-button"
+                                                className="modal-button modal-button-manual"
                                                 style={{ backgroundColor: '#dc2626' }}
                                             >
                                                 Intentar Nuevamente
@@ -549,7 +547,7 @@ const App = () => {
                                             height: '150px', 
                                             borderRadius: '50%', 
                                             objectFit: 'cover',
-                                            border: '3px solid #16a34a'
+                                            border: '3px solid solid'
                                         }} 
                                     />
                                     <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem' }}>
