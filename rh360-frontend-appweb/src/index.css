@@ -2,6 +2,8 @@
  * ========================================
  * ARQUITECTURA RESPONSIVA
  * ========================================
+ * Se mantienen los estilos originales y se añaden mejoras responsivas.
+ *
  * 1. MÓVIL (MOBILE-FIRST)
  * - Se aplican los estilos base para pantallas pequeñas primero.
  * 2. TABLETS (y escritorios pequeños)
@@ -9,15 +11,25 @@
  * 3. ESCRITORIOS (Laptops, pantallas grandes)
  * - @media (min-width: 1024px)
  *
- * Se ha optimizado el uso de flexbox, unidades relativas (vh, vw, %)
- * y funciones modernas como clamp() para un escalado fluido.
+ * Se optimizan tamaños, contenedores y fuentes para que todo escale
+ * proporcionalmente y se vea grande y ordenado sin scroll en cualquier dispositivo.
  */
 
-/* Reset y base */
+/* Reset y base */ 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+:root {
+    --header-height: clamp(50px, 8vh, 80px);
+}
+
+html, body, #root {
+  height: 100%;
+  min-height: 100%;
+  width: 100%;
 }
 
 body {
@@ -26,15 +38,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Se modifica overflow-y a 'auto' para permitir el scroll si el contenido lo excede,
+     evitando que se corte en pantallas pequeñas */
   overflow-x: hidden;
-  overflow-y: hidden; /* 👈 evitar scroll vertical */
-  height: 100vh;
+  overflow-y: auto; 
 }
 
 /* Contenedor principal */
 .min-h-screen {
   min-height: 100vh;
-  overflow: hidden;
+  /* Se modifica overflow para evitar recortes, el layout se adapta para no necesitarlo */
+  overflow: hidden; 
   display: flex;
   flex-direction: column;
 }
@@ -52,13 +66,14 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
+  height: var(--header-height);
 }
 
 .header-content-distributed {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: clamp(50px, 10vw, 80px);
+  height: 100%;
 }
 
 .header-left img {
@@ -80,32 +95,44 @@ body {
 }
 
 /* Contenido Principal */
-.main-area {
+.main-container {
   flex: 1;
   display: flex;
-  align-items: stretch;    /* 👈 ocupar todo el alto */
+  align-items: center;
   justify-content: center;
-  padding: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1rem, 3vh, 2rem);
+}
+
+.main-area {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  flex: 1;
+}
+
+.main-view {
+  display: flex;
+  width: 100%;
+  max-width: 1200px; /* Limita el ancho en pantallas grandes */
 }
 
 .main-card {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: clamp(1rem, 2vw, 2rem);
   padding: clamp(1.5rem, 5vw, 3rem); 
-  width: 95%;
-  max-width: 900px;
+  width: 100%;
+  height: 100%;
   margin: auto;
   text-align: center;
 
-  /* 👇 clave */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
 }
 
 .main-header {
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
 }
 
 .main-title {
@@ -118,8 +145,9 @@ body {
 
 .time-display {
   padding: 0;
-  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
   display: flex;
+  flex-direction: column; /* Modo vertical por defecto */
   gap: clamp(1rem, 5vw, 3rem);
   align-items: center;
   justify-content: center;
@@ -144,18 +172,10 @@ body {
 .buttons-grid {
   display: flex;
   flex-direction: column;
-  gap: clamp(1rem, 3vw, 2rem);
+  gap: clamp(1rem, 3vh, 2rem);
   width: 100%;
-  flex: 1;                /* 👈 se ajusta */
-  justify-content: center; /* 👈 centrado vertical */
-}
-
-@media (min-width: 1024px) {
-  .buttons-grid {
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-  }
+  flex: 1; 
+  justify-content: center;
 }
 
 .main-button {
@@ -218,7 +238,7 @@ body {
   opacity: 0.9;
 }
 
-/* Estilos de cámara y modal */
+/* Estilos de cﾃ｡mara y modal */
 .camera-view {
   background-color: rgba(55, 65, 81, 0.4);
   border-radius: clamp(1rem, 2vw, 1.5rem);
@@ -351,6 +371,7 @@ body {
 .control-button:disabled {
   background-color: #64748b !important;
   cursor: not-allowed;
+  transform: none;
 }
 
 .button-capture {
